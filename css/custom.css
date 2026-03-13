@@ -37,3 +37,61 @@
 .index-card:hover {
     transform: translateY(-5px); /* 鼠标悬停微动，增加精致感 */
 }
+
+/* 秘密花园加密界面美化 */
+#encrypt-blog {
+    margin: 4rem auto;
+    padding: 2rem;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.05); /* 半透明背景 */
+    backdrop-filter: blur(12px); /* 毛玻璃效果 */
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    max-width: 500px;
+}
+
+/* 输入框样式 */
+#encrypt-blog input {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid #00d4ff; /* 使用你的神剑蓝色 */
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 20px;
+    outline: none;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 5px rgba(0, 212, 255, 0.2);
+}
+
+/* 输入框聚焦时的呼吸效果 */
+#encrypt-blog input:focus {
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+    transform: scale(1.02);
+}
+
+/* 确认按钮样式 */
+#encrypt-blog button {
+    margin-top: 20px;
+    background: linear-gradient(45deg, #0080ff, #00d4ff);
+    border: none;
+    color: white;
+    padding: 8px 25px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+#encrypt-blog button:hover {
+    letter-spacing: 2px; /* 悬停时文字拉开间距，很有仪式感 */
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
+}
+
+/* 提示文字样式 */
+#encrypt-message {
+    font-weight: bold;
+    color: #00d4ff;
+    margin-bottom: 20px;
+    text-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
+}
