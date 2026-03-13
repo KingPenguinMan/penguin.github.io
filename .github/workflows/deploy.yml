@@ -1,0 +1,36 @@
+name: Hexo Deploy
+
+on:
+  push:
+    branches:
+      - main # 如果你的主分支叫 master，请改为 master
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: |
+          npm install -g hexo-cli
+          npm install
+
+      - name: Deploy
+        env:
+          # 这里的变量名必须和你在 Secret 里设置的一致
+          GH_TOKEN: ${{ secrets.HEXO_DEPLOY_KEY }} 
+        run: |
+          hexo clean
+          hexo generate
+          # 配置 Git 机器人信息
+          git config --global user.name "KingPenguinMan"
+          git config --global user.email "486570489@qq.com"
+          # 部署命令
+          hexo deploy
