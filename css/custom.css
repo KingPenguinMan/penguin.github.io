@@ -95,3 +95,28 @@
     margin-bottom: 20px;
     text-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
 }
+
+/* 文章内图片高级质感 */
+.markdown-body img {
+    /* 基础圆角与过渡 */
+    border-radius: 12px;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    display: block;
+    margin: 1.5rem auto; /* 图片自动居中 */
+    border: 1px solid rgba(255, 255, 255, 0.05); /* 微弱的边框，增加精致感 */
+}
+
+/* 鼠标悬停时的浮起特效 */
+.markdown-body img:hover {
+    transform: translateY(-8px) scale(1.02); /* 向上浮动并轻微放大 */
+    box-shadow: 0 20px 40px rgba(0, 212, 255, 0.25); /* 投射出你专属的神剑蓝阴影 */
+    cursor: zoom-in; /* 提示用户可以点击放大 */
+}
+
+/* 适配手机端，避免悬浮过度 */
+@media (max-width: 768px) {
+    .markdown-body img:hover {
+        transform: translateY(-3px) scale(1.01);
+    }
+}
