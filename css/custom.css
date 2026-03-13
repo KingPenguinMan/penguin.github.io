@@ -1,42 +1,39 @@
-/* 星空流动特效 */
-body {
-    background: linear-gradient(to bottom, #000c18 0%, #000000 100%); /* 兜底深色 */
-}
-
-#banner {
-    position: relative;
-    overflow: hidden;
-}
-
+/* 加强版星空流动特效 */
 #banner::before {
     content: "";
     position: absolute;
     top: 0;
     left: 0;
-    width: 200%;
+    width: 200%; /* 这里的宽度要足够大才能循环流动 */
     height: 200%;
     background-image: 
-        radial-gradient(1px 1px at 20px 30px, #fff, rgba(0,0,0,0)),
-        radial-gradient(1.5px 1.5px at 40px 70px, #fff, rgba(0,0,0,0)),
-        radial-gradient(1px 1px at 50px 160px, #fff, rgba(0,0,0,0)),
-        radial-gradient(1.5px 1.5px at 90px 40px, #fff, rgba(0,0,0,0)),
-        radial-gradient(1px 1px at 130px 80px, #fff, rgba(0,0,0,0));
+        radial-gradient(2px 2px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 150px 150px, #ffffff, rgba(0,0,0,0)),
+        radial-gradient(1.5px 1.5px at 60px 220px, #ffffff, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 250px 50px, #ffffff, rgba(0,0,0,0)),
+        radial-gradient(1.5px 1.5px at 300px 280px, #ffffff, rgba(0,0,0,0));
     background-repeat: repeat;
-    background-size: 200px 200px;
-    opacity: 0.15; /* 只有 15% 透明度，确保不抢背景图戏份 */
-    animation: starMove 60s linear infinite;
+    background-size: 400px 400px; /* 增大间距，让星星看起来错落有致 */
+    opacity: 0.4; /* 将透明度从 0.15 调高到 0.4，现在应该很明显了 */
+    animation: starMove 40s linear infinite; /* 速度从 60s 调快到 40s */
     pointer-events: none;
+    z-index: 1; /* 确保它在背景图之上，但在文字之下 */
 }
 
 @keyframes starMove {
     from { transform: translate(0, 0); }
-    to { transform: translate(-100px, -100px); }
+    to { transform: translate(-200px, -200px); }
 }
 
-/* 玻璃拟态卡片：让文章列表更通透 */
+/* 玻璃拟态卡片保持不变 */
 .index-card {
     background: rgba(255, 255, 255, 0.05) !important;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.index-card:hover {
+    transform: translateY(-5px); /* 鼠标悬停微动，增加精致感 */
 }
