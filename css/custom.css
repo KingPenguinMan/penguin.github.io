@@ -38,7 +38,7 @@
     transform: translateY(-5px); /* 鼠标悬停微动，增加精致感 */
 }
 
-/* 秘密花园加密界面美化 */
+/* 加密界面美化 */
 #encrypt-blog {
     margin: 4rem auto;
     padding: 2rem;
@@ -119,4 +119,19 @@
     .markdown-body img:hover {
         transform: translateY(-3px) scale(1.01);
     }
+}
+/*视频适应打小*/
+.video-container {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 比例 */
+    height: 0;
+    overflow: hidden;
+    margin: 20px 0;
+}
+.video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }
