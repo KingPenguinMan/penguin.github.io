@@ -29,7 +29,7 @@
 <meta property="og:image" content="https://fastly.jsdelivr.net/gh/KingPenguinMan/image-bed/img/20260328103056528.png">
 <meta property="og:image" content="https://www.runoob.com/wp-content/uploads/2014/06/363003_1227493859FdXT.png">
 <meta property="article:published_time" content="2026-03-27T09:14:27.000Z">
-<meta property="article:modified_time" content="2026-03-28T02:51:43.361Z">
+<meta property="article:modified_time" content="2026-03-28T03:22:45.226Z">
 <meta property="article:author" content="KingPenguinMan">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://fastly.jsdelivr.net/gh/KingPenguinMan/image-bed/img/20260328103056528.png">
@@ -350,7 +350,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          879 字
+          2.7k 字
         
       </span>
     
@@ -361,7 +361,7 @@
         
         
         
-          8 分钟
+          23 分钟
         
       </span>
     
@@ -446,7 +446,68 @@
 </tbody></table>
 <p>第一组 “文件拥有者可具备的权限”<br>第二组 “加入此群组之账号的权限”<br>第三组 “非本人且没有加入本群组之其他账号的权限”</p>
 <p>第二栏 表示有多少文件名链接到此节点（i-node）<br>第三栏 表示这个文件（目录）的“拥有者账号”<br>第四栏 表示这个文件的所属群组<br>第五栏 表示大小（Bytes）<br>第六栏 为创建日期或修改日期（距离太久就只显示年份）<br>第七栏 这个文件文件名</p>
+<h2 id="更改文件属性"><a href="#更改文件属性" class="headerlink" title="更改文件属性"></a>更改文件属性</h2><h3 id="1、chgrp：更改文件属组"><a href="#1、chgrp：更改文件属组" class="headerlink" title="1、chgrp：更改文件属组"></a>1、chgrp：更改文件属组</h3><h3 id="changegroup"><a href="#changegroup" class="headerlink" title="changegroup"></a>changegroup</h3><p>语法：</p>
+<p>chgrp [-R] 属组名 文件名</p>
+<p>参数选项</p>
+<ul>
+<li>-R：递归更改文件属组，就是在更改某个目录文件的属组时，如果加上 -R 的参数，那么该目录下的所有文件的属组都会更改。</li>
+</ul>
+<p> 组名必须在&#x2F;etc&#x2F;group 存在，否则会报错</p>
+<h3 id="2、chown：更改文件所有者（owner），也可以同时更改文件所属组。changeowner"><a href="#2、chown：更改文件所有者（owner），也可以同时更改文件所属组。changeowner" class="headerlink" title="2、chown：更改文件所有者（owner），也可以同时更改文件所属组。changeowner"></a>2、chown：更改文件所有者（owner），也可以同时更改文件所属组。changeowner</h3><p>语法：</p>
+<p>chown [–R] 所有者 文件名<br>chown [-R] 所有者:属组名 文件名</p>
+<p>进入 &#x2F;root 目录（~）将install.log的拥有者改为bin这个账号：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@www ~] cd ~<br>[root@www ~]# chown bin install.log<br>[root@www ~]# ls -l<br>-rw-r--r--  1 bin  users 68495 Jun 25 08:53 install.log<br></code></pre></td></tr></table></figure>
 
+<p>将install.log的拥有者与群组改回为root：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@www ~]# chown root:root install.log<br>[root@www ~]# ls -l<br>-rw-r--r--  1 root root 68495 Jun 25 08:53 install.log<br></code></pre></td></tr></table></figure>
+
+<h3 id="3、chmod：更改文件9个属性"><a href="#3、chmod：更改文件9个属性" class="headerlink" title="3、chmod：更改文件9个属性"></a>3、chmod：更改文件9个属性</h3><p>Linux文件属性有两种设置方法，一种是数字，一种是符号。</p>
+<p>Linux 文件的基本权限就有九个，分别是 <strong>owner&#x2F;group&#x2F;others(拥有者&#x2F;组&#x2F;其他)</strong> 三种身份各有自己的 <strong>read&#x2F;write&#x2F;execute</strong> 权限。</p>
+<p>先复习一下刚刚上面提到的数据：文件的权限字符为： -rwxrwxrwx ， 这九个权限是三个三个一组的！其中，我们可以使用数字来代表各个权限，各权限的分数对照表如下：</p>
+<ul>
+<li>r:4</li>
+<li>w:2</li>
+<li>x:1</li>
+</ul>
+<p>每种身份(owner&#x2F;group&#x2F;others)各自的三个权限(r&#x2F;w&#x2F;x)分数是需要累加的，例如当权限为： -rwxrwx— 分数则是：</p>
+<ul>
+<li>owner &#x3D; rwx &#x3D; 4+2+1 &#x3D; 7</li>
+<li>group &#x3D; rwx &#x3D; 4+2+1 &#x3D; 7</li>
+<li>others&#x3D; — &#x3D; 0+0+0 &#x3D; 0</li>
+</ul>
+<p>所以等一下我们设定权限的变更时，该文件的权限数字就是 <strong>770</strong>。变更权限的指令 chmod 的语法是这样的：</p>
+<p> chmod [-R] xyz 文件或目录</p>
+<p>选项与参数：</p>
+<ul>
+<li><strong>xyz</strong> : 就是刚刚提到的数字类型的权限属性，为 <strong>rwx</strong> 属性数值的相加。</li>
+<li><strong>-R</strong> : 进行递归(recursive)的持续变更，以及连同次目录下的所有文件都会变更</li>
+</ul>
+<p>举例来说，如果要将 <strong>.bashrc</strong> 这个文件所有的权限都设定启用，那么命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@www ~]# ls -al .bashrc<br>-rw-r--r--  1 root root 395 Jul  4 11:45 .bashrc<br>[root@www ~]# chmod 777 .bashrc<br>[root@www ~]# ls -al .bashrc<br>-rwxrwxrwx  1 root root 395 Jul  4 11:45 .bashrc<br></code></pre></td></tr></table></figure>
+<p>那如果要将权限变成 <em>-rwxr-xr–</em> 呢？那么权限的分数就成为 [4+2+1][4+0+1][4+0+0]&#x3D;754。</p>
+<h3 id="符号类型改变文件权限"><a href="#符号类型改变文件权限" class="headerlink" title="符号类型改变文件权限"></a>符号类型改变文件权限</h3><p>还有一个改变权限的方法，从之前的介绍中我们可以发现，基本上就九个权限分别是：</p>
+<ul>
+<li>user：用户</li>
+<li>group：组</li>
+<li>others：其他</li>
+</ul>
+<p>那么我们就可以使用 <strong>u, g, o</strong> 来代表三种身份的权限。</p>
+<p>此外， <strong>a</strong> 则代表 <strong>all</strong>，即全部的身份。读写的权限可以写成 r, w, x，也就是可以使用下表的方式来看：</p>
+<table>
+<thead>
+<tr>
+<th>chmod</th>
+<th>u  go  a</th>
+<th>+(加入)  -(除去)  &#x3D;(设定)</th>
+<th>r  w  x</th>
+<th>文件或目录</th>
+</tr>
+</thead>
+</table>
+<p>如果我们需要将文件权限设置为 <strong>-rwxr-xr–</strong> ，可以使用 chmod u&#x3D;rwx,g&#x3D;rx,o&#x3D;r 文件名 来设定:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"> <span class="hljs-built_in">touch</span> test1    // 创建 test1 文件</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">ls</span> -al test1    // 查看 test1 默认权限</span><br>-rw-r--r-- 1 root root 0 Nov 15 10:32 test1<br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">chmod</span> u=rwx,g=rx,o=r  test1    // 修改 test1 权限</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">ls</span> -al test1</span><br>-rwxr-xr-- 1 root root 0 Nov 15 10:32 test1<br></code></pre></td></tr></table></figure>
+<p>而如果是要将权限去掉而不改变其他已存在的权限呢？例如要拿掉全部人的可执行权限，则：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">chmod</span>  a-x test1</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">ls</span> -al test1</span><br>-rw-r--r-- 1 root root 0 Nov 15 10:32 test1<br></code></pre></td></tr></table></figure>
                 
               </div>
             
