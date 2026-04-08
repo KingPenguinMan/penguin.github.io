@@ -19,26 +19,27 @@
   <meta name="author" content="KingPenguinMan">
   <meta name="keywords" content="">
   
-    <meta name="description" content="灵感来源于B站看到的一个TED演讲视频 为什么聪明人在二十多岁时会失败                  道理显而易见：     努力会打破“天才”的滤镜。     如果不努力，失败都能归结于：“我没认真。”            总是筹划着学点什么，还没开始，路线、建议、避坑指南便已看得数不胜数。     盯着那几十小时的学习时长，最终望而止步。            总想系统地学习，枯燥的底层">
+    <meta name="description" content="常用文件管理命令1234567891011121314(1) ctrl c: 取消命令，并且换行(2) ctrl u: 清空本行命令(3) tab键：可以补全命令和文件名，如果补全不了快速按两下tab键，可以显示备选选项(4) ls: 列出当前目录下所有文件，蓝色的是文件夹，白色的是普通文件，绿色的是可执行文件(5) pwd: 显示当前路径(6) cd XXX: 进入XXX目录下, cd .. 返">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Why &quot; Try to  be  not perfect &quot;？">
-<meta property="og:url" content="https://128374.xyz/2026/03/17/Try%20%20to%20be%20not%20perfect/index.html">
+<meta property="og:title" content="Linux基本语法">
+<meta property="og:url" content="https://128374.xyz/2026/03/27/%E7%AC%94%E8%AE%B0/linux/linux%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95/index.html">
 <meta property="og:site_name" content="PenguinMan">
-<meta property="og:description" content="灵感来源于B站看到的一个TED演讲视频 为什么聪明人在二十多岁时会失败                  道理显而易见：     努力会打破“天才”的滤镜。     如果不努力，失败都能归结于：“我没认真。”            总是筹划着学点什么，还没开始，路线、建议、避坑指南便已看得数不胜数。     盯着那几十小时的学习时长，最终望而止步。            总想系统地学习，枯燥的底层">
+<meta property="og:description" content="常用文件管理命令1234567891011121314(1) ctrl c: 取消命令，并且换行(2) ctrl u: 清空本行命令(3) tab键：可以补全命令和文件名，如果补全不了快速按两下tab键，可以显示备选选项(4) ls: 列出当前目录下所有文件，蓝色的是文件夹，白色的是普通文件，绿色的是可执行文件(5) pwd: 显示当前路径(6) cd XXX: 进入XXX目录下, cd .. 返">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://fastly.jsdelivr.net/gh/KingPenguinMan/image-bed/img/%E5%B0%81%E9%9D%A21.png">
-<meta property="article:published_time" content="2026-03-17T09:07:36.000Z">
-<meta property="article:modified_time" content="2026-03-18T02:54:14.017Z">
+<meta property="og:image" content="https://fastly.jsdelivr.net/gh/KingPenguinMan/image-bed/img/20260328103056528.png">
+<meta property="og:image" content="https://www.runoob.com/wp-content/uploads/2014/06/363003_1227493859FdXT.png">
+<meta property="article:published_time" content="2026-03-27T09:14:27.000Z">
+<meta property="article:modified_time" content="2026-04-08T08:06:53.051Z">
 <meta property="article:author" content="KingPenguinMan">
-<meta property="article:tag" content="杂谈">
+<meta property="article:tag" content="linux">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://fastly.jsdelivr.net/gh/KingPenguinMan/image-bed/img/%E5%B0%81%E9%9D%A21.png">
+<meta name="twitter:image" content="https://fastly.jsdelivr.net/gh/KingPenguinMan/image-bed/img/20260328103056528.png">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>Why &#34; Try to  be  not perfect &#34;？ - PenguinMan</title>
+  <title>Linux基本语法 - PenguinMan</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -321,13 +322,13 @@
   
 
 <div id="banner" class="banner" parallax=true
-     style="background: url('https://fastly.jsdelivr.net/gh/KingPenguinMan/image-bed/img/%E8%83%8C%E6%99%AF1.png') no-repeat center center; background-size: cover;">
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Why &#34; Try to  be  not perfect &#34;？"></span>
+            <span id="subtitle" data-typed-text="Linux基本语法"></span>
           
         </div>
 
@@ -338,8 +339,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2026-03-17 17:07" pubdate>
-          2026年3月17日 下午
+        <time datetime="2026-03-27 17:14" pubdate>
+          2026年3月27日 下午
         </time>
       </span>
     
@@ -350,7 +351,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          245 字
+          2.7k 字
         
       </span>
     
@@ -361,7 +362,7 @@
         
         
         
-          3 分钟
+          23 分钟
         
       </span>
     
@@ -400,75 +401,114 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">Why &#34; Try to  be  not perfect &#34;？</h1>
+            <h1 id="seo-header">Linux基本语法</h1>
             
             
               <div class="markdown-body">
                 
-                <p>灵感来源于B站看到的一个TED演讲视频</p>
-<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/av116050133849523/" title="为什么聪明人在二十多岁时会失败">为什么聪明人在二十多岁时会失败</a></p>
-<div style="position: relative; width: 100%; height: 0; padding-bottom: 56.25%; margin: 20px 0; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); background: #000;">
-  <iframe src="https://player.bilibili.com/player.html?aid=116050133849523&page=1&as_wide=1&high_quality=1&danmaku=0&t=0" 
-          style="position: absolute; width: 100%; height: 100%; left: 0; top: 0;" 
-          scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"
-          sandbox="allow-top-navigation allow-same-origin allow-forms allow-scripts">
-  </iframe>
-</div>
-<div class="motto-container" style="
-    background-image: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url('https://fastly.jsdelivr.net/gh/KingPenguinMan/image-bed/img/astronaut-black-hole-deep-space-universe-cosmos-surreal-3840x2160-6743.jpg');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    padding: 60px 20px;
-    border-radius: 15px;
-    margin: 40px auto;
-    max-width: 900px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-    border: 1px solid rgba(255,255,255,0.05);
-    color: #f0f0f0;
-    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-    line-height: 2;
-">
+                <h1 id="常用文件管理命令"><a href="#常用文件管理命令" class="headerlink" title="常用文件管理命令"></a>常用文件管理命令</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs shell">(1) ctrl c: 取消命令，并且换行<br>(2) ctrl u: 清空本行命令<br>(3) tab键：可以补全命令和文件名，如果补全不了快速按两下tab键，可以显示备选选项<br>(4) ls: 列出当前目录下所有文件，蓝色的是文件夹，白色的是普通文件，绿色的是可执行文件<br>(5) pwd: 显示当前路径<br>(6) cd XXX: 进入XXX目录下, cd .. 返回上层目录<br>(7) cp XXX YYY: 将XXX文件复制成YYY，XXX和YYY可以是一个路径，比如../dir_c/a.txt，表示上层目录下的dir_c文件夹下的文件a.txt<br>(8) mkdir XXX: 创建目录XXX<br>(9) rm XXX: 删除普通文件;  rm XXX -r: 删除文件夹<br>(10) mv XXX YYY: 将XXX文件移动到YYY，和cp命令一样，XXX和YYY可以是一个路径；重命名也是用这个命令<br>(11) touch XXX: 创建一个文件<br>(12) cat XXX: 展示文件XXX中的内容<br>(13) 复制文本 windows/Linux下：Ctrl + insert，Mac下：command + c<br>(14) 粘贴文本windows/Linux下：Shift + insert，Mac下：command + v<br></code></pre></td></tr></table></figure>
+<h1 id="文件权限概念"><a href="#文件权限概念" class="headerlink" title="文件权限概念"></a>文件权限概念</h1><p><img src="https://fastly.jsdelivr.net/gh/KingPenguinMan/image-bed/img/20260328103056528.png" srcset="/img/loading.gif" lazyload alt="image.png"><br><img src="https://www.runoob.com/wp-content/uploads/2014/06/363003_1227493859FdXT.png" srcset="/img/loading.gif" lazyload alt="image.png"><br>[0]文件类型</p>
+<ul>
+<li>[d]目录 -文件</li>
+<li>[l]链接文件（link file)</li>
+<li>[b]可随机存取设备</li>
+<li>[c]一次性读取设备</li>
+</ul>
+<p>接下来的字符三个一组 “rwx”三个字符组合</p>
+<ul>
+<li>[r]read</li>
+<li>[w]write</li>
+<li>[x]execute</li>
+<li>[-]无权限</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th><strong>权限组合</strong></th>
+<th><strong>数字简写</strong></th>
+<th><strong>常见用途</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>rwx------</code></td>
+<td><strong>700</strong></td>
+<td>只有你能看的私密文件</td>
+</tr>
+<tr>
+<td><code>rw-r--r--</code></td>
+<td><strong>644</strong></td>
+<td>常见的网页&#x2F;博客文件权限</td>
+</tr>
+<tr>
+<td><code>rwxr-xr-x</code></td>
+<td><strong>755</strong></td>
+<td>脚本或程序的标准执行权限</td>
+</tr>
+</tbody></table>
+<p>第一组 “文件拥有者可具备的权限”<br>第二组 “加入此群组之账号的权限”<br>第三组 “非本人且没有加入本群组之其他账号的权限”</p>
+<p>第二栏 表示有多少文件名链接到此节点（i-node）<br>第三栏 表示这个文件（目录）的“拥有者账号”<br>第四栏 表示这个文件的所属群组<br>第五栏 表示大小（Bytes）<br>第六栏 为创建日期或修改日期（距离太久就只显示年份）<br>第七栏 这个文件文件名</p>
+<h2 id="更改文件属性"><a href="#更改文件属性" class="headerlink" title="更改文件属性"></a>更改文件属性</h2><h3 id="1、chgrp：更改文件属组"><a href="#1、chgrp：更改文件属组" class="headerlink" title="1、chgrp：更改文件属组"></a>1、chgrp：更改文件属组</h3><h3 id="changegroup"><a href="#changegroup" class="headerlink" title="changegroup"></a>changegroup</h3><p>语法：</p>
+<p>chgrp [-R] 属组名 文件名</p>
+<p>参数选项</p>
+<ul>
+<li>-R：递归更改文件属组，就是在更改某个目录文件的属组时，如果加上 -R 的参数，那么该目录下的所有文件的属组都会更改。</li>
+</ul>
+<p> 组名必须在&#x2F;etc&#x2F;group 存在，否则会报错</p>
+<h3 id="2、chown：更改文件所有者（owner），也可以同时更改文件所属组。changeowner"><a href="#2、chown：更改文件所有者（owner），也可以同时更改文件所属组。changeowner" class="headerlink" title="2、chown：更改文件所有者（owner），也可以同时更改文件所属组。changeowner"></a>2、chown：更改文件所有者（owner），也可以同时更改文件所属组。changeowner</h3><p>语法：</p>
+<p>chown [–R] 所有者 文件名<br>chown [-R] 所有者:属组名 文件名</p>
+<p>进入 &#x2F;root 目录（~）将install.log的拥有者改为bin这个账号：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@www ~] cd ~<br>[root@www ~]# chown bin install.log<br>[root@www ~]# ls -l<br>-rw-r--r--  1 bin  users 68495 Jun 25 08:53 install.log<br></code></pre></td></tr></table></figure>
 
-  <p style="font-size: 1.6rem; font-weight: 300; border-left: 5px solid #fb7299; padding-left: 25px; margin-bottom: 50px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">
-    道理显而易见：<br>
-    <span style="color: #fb7299; font-weight: bold;">努力</span>会打破“天才”的滤镜。<br>
-    如果不努力，失败都能归结于：<span style="text-decoration: underline; text-decoration-color: #fb7299;">“我没认真。”</span>
-  </p>
+<p>将install.log的拥有者与群组改回为root：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@www ~]# chown root:root install.log<br>[root@www ~]# ls -l<br>-rw-r--r--  1 root root 68495 Jun 25 08:53 install.log<br></code></pre></td></tr></table></figure>
 
-  <p style="font-size: 1.2rem; margin-bottom: 30px; opacity: 0.95;">
-    总是筹划着学点什么，还没开始，路线、建议、避坑指南便已看得数不胜数。<br>
-    盯着那几十小时的学习时长，最终望而止步。
-  </p>
-
-  <p style="font-size: 1.2rem; margin-bottom: 30px; opacity: 0.95;">
-    总想系统地学习，枯燥的底层知识却又难以下咽。
-  </p>
-
-  <div style="background: rgba(255, 255, 255, 0.03); padding: 30px; border-radius: 12px; margin: 50px 0; border: 1px dashed rgba(255,255,255,0.15); backdrop-filter: blur(5px);">
-    <p style="font-size: 1.4rem; margin: 0; text-align: center; letter-spacing: 3px; font-weight: 500;">
-      永远不要忘记，曾经的成功是用<span style="color: #fb7299;">努力</span>换来的。
-    </p>
-  </div>
-
-  <p style="font-size: 1.2rem; margin-bottom: 40px; opacity: 0.95;">
-    如果能成功，怎么努力都不为过。<br>
-    毕竟在他人看来，<span style="background: linear-gradient(to right, transparent, rgba(251,114,153,0.2), transparent); padding: 2px 5px;">结果远大于过程</span>。
-  </p>
-
-  <p style="font-size: 2.2rem; font-weight: 900; text-align: center; margin-top: 60px; color: #fb7299; text-shadow: 0 0 25px rgba(251,114,153,0.5); letter-spacing: 1px;">
-    So, try to be NOT perfect.
-  </p>
-
-</div>
-<div style="padding: 20px; border-left: 5px solid #fb7299; background: rgba(251, 114, 153, 0.1); border-radius: 8px; margin: 20px 0;">
-  <p style="font-size: 1.25rem; font-weight: 500; line-height: 1.6; margin-bottom: 10px; color: #efefef;">
-    前进，前进，不择手段地前进！
-  </p>
-  <p style="text-align: right; font-size: 1rem; color: #888; margin: 0;">
-    —— 维德 《三体》
-  </p>
-</div>
+<h3 id="3、chmod：更改文件9个属性"><a href="#3、chmod：更改文件9个属性" class="headerlink" title="3、chmod：更改文件9个属性"></a>3、chmod：更改文件9个属性</h3><p>Linux文件属性有两种设置方法，一种是数字，一种是符号。</p>
+<p>Linux 文件的基本权限就有九个，分别是 <strong>owner&#x2F;group&#x2F;others(拥有者&#x2F;组&#x2F;其他)</strong> 三种身份各有自己的 <strong>read&#x2F;write&#x2F;execute</strong> 权限。</p>
+<p>先复习一下刚刚上面提到的数据：文件的权限字符为： -rwxrwxrwx ， 这九个权限是三个三个一组的！其中，我们可以使用数字来代表各个权限，各权限的分数对照表如下：</p>
+<ul>
+<li>r:4</li>
+<li>w:2</li>
+<li>x:1</li>
+</ul>
+<p>每种身份(owner&#x2F;group&#x2F;others)各自的三个权限(r&#x2F;w&#x2F;x)分数是需要累加的，例如当权限为： -rwxrwx— 分数则是：</p>
+<ul>
+<li>owner &#x3D; rwx &#x3D; 4+2+1 &#x3D; 7</li>
+<li>group &#x3D; rwx &#x3D; 4+2+1 &#x3D; 7</li>
+<li>others&#x3D; — &#x3D; 0+0+0 &#x3D; 0</li>
+</ul>
+<p>所以等一下我们设定权限的变更时，该文件的权限数字就是 <strong>770</strong>。变更权限的指令 chmod 的语法是这样的：</p>
+<p> chmod [-R] xyz 文件或目录</p>
+<p>选项与参数：</p>
+<ul>
+<li><strong>xyz</strong> : 就是刚刚提到的数字类型的权限属性，为 <strong>rwx</strong> 属性数值的相加。</li>
+<li><strong>-R</strong> : 进行递归(recursive)的持续变更，以及连同次目录下的所有文件都会变更</li>
+</ul>
+<p>举例来说，如果要将 <strong>.bashrc</strong> 这个文件所有的权限都设定启用，那么命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@www ~]# ls -al .bashrc<br>-rw-r--r--  1 root root 395 Jul  4 11:45 .bashrc<br>[root@www ~]# chmod 777 .bashrc<br>[root@www ~]# ls -al .bashrc<br>-rwxrwxrwx  1 root root 395 Jul  4 11:45 .bashrc<br></code></pre></td></tr></table></figure>
+<p>那如果要将权限变成 <em>-rwxr-xr–</em> 呢？那么权限的分数就成为 [4+2+1][4+0+1][4+0+0]&#x3D;754。</p>
+<h3 id="符号类型改变文件权限"><a href="#符号类型改变文件权限" class="headerlink" title="符号类型改变文件权限"></a>符号类型改变文件权限</h3><p>还有一个改变权限的方法，从之前的介绍中我们可以发现，基本上就九个权限分别是：</p>
+<ul>
+<li>user：用户</li>
+<li>group：组</li>
+<li>others：其他</li>
+</ul>
+<p>那么我们就可以使用 <strong>u, g, o</strong> 来代表三种身份的权限。</p>
+<p>此外， <strong>a</strong> 则代表 <strong>all</strong>，即全部的身份。读写的权限可以写成 r, w, x，也就是可以使用下表的方式来看：</p>
+<table>
+<thead>
+<tr>
+<th>chmod</th>
+<th>u  go  a</th>
+<th>+(加入)  -(除去)  &#x3D;(设定)</th>
+<th>r  w  x</th>
+<th>文件或目录</th>
+</tr>
+</thead>
+</table>
+<p>如果我们需要将文件权限设置为 <strong>-rwxr-xr–</strong> ，可以使用 chmod u&#x3D;rwx,g&#x3D;rx,o&#x3D;r 文件名 来设定:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"> <span class="hljs-built_in">touch</span> test1    // 创建 test1 文件</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">ls</span> -al test1    // 查看 test1 默认权限</span><br>-rw-r--r-- 1 root root 0 Nov 15 10:32 test1<br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">chmod</span> u=rwx,g=rx,o=r  test1    // 修改 test1 权限</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">ls</span> -al test1</span><br>-rwxr-xr-- 1 root root 0 Nov 15 10:32 test1<br></code></pre></td></tr></table></figure>
+<p>而如果是要将权限去掉而不改变其他已存在的权限呢？例如要拿掉全部人的可执行权限，则：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">chmod</span>  a-x test1</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">ls</span> -al test1</span><br>-rw-r--r-- 1 root root 0 Nov 15 10:32 test1<br></code></pre></td></tr></table></figure>
                 
               </div>
             
@@ -480,7 +520,7 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/%E6%9D%82%E8%B0%88/" class="print-no-link">#杂谈</a>
+        <a href="/tags/linux/" class="print-no-link">#linux</a>
       
     </div>
   
@@ -492,8 +532,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Why &#34; Try to  be  not perfect &#34;？</div>
-      <div>https://128374.xyz/2026/03/17/Try  to be not perfect/</div>
+      <div>Linux基本语法</div>
+      <div>https://128374.xyz/2026/03/27/笔记/linux/linux基本语法/</div>
     </div>
     <div class="license-meta">
       
@@ -505,13 +545,13 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2026年3月17日</div>
+          <div>2026年3月27日</div>
         </div>
       
       
         <div class="license-meta-item license-meta-date">
           <div>更新于</div>
-          <div>2026年3月18日</div>
+          <div>2026年4月8日</div>
         </div>
       
       
@@ -554,15 +594,21 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2026/03/27/%E7%AC%94%E8%AE%B0/linux/linux%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95/" title="Linux基本语法">
+                      <a href="/2026/04/08/%E7%AC%94%E8%AE%B0/Common%20Network%20Commands/" title="Common Network Commands">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Linux基本语法</span>
+                        <span class="hidden-mobile">Common Network Commands</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
                   </article>
                   <article class="post-next col-6">
                     
+                    
+                      <a href="/2026/03/17/Try%20%20to%20be%20not%20perfect/" title="Why &#34; Try to  be  not perfect &#34;？">
+                        <span class="hidden-mobile">Why &#34; Try to  be  not perfect &#34;？</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
                     
                   </article>
                 </div>
