@@ -5,11 +5,11 @@
 # Site
 title: PenguinMan 
 subtitle: 'Try to be not perfect'
-description: ''
+description: 'KingPenguinMan 的个人博客，记录技术学习、网络安全笔记与生活思考。'
 keywords:
 author: KingPenguinMan
 language: zh-CN
-timezone: ''
+timezone: 'Asia/Shanghai'
 
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
