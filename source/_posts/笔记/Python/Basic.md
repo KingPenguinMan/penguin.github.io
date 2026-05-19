@@ -17,6 +17,6 @@ print("Hello world");
 print("""This string runs
  mutiple lines"""); #triple quote allows mutiple type
 print("This string is" + " awesome");
-print('\n');
+print('\n'); 
 print("New line");
 ```
