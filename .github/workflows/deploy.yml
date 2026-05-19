@@ -1,36 +1,44 @@
-name: Hexo Deploy
+name: Deploy Hexo Blog
 
 on:
   push:
     branches:
-      - main # 如果你的主分支叫 master，请改为 master
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: true
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: 20
+          cache: npm
 
       - name: Install dependencies
-        run: |
-          npm install -g hexo-cli
-          npm install
+        run: npm ci
 
-      - name: Deploy
-        env:
-          # 这里的变量名必须和你在 Secret 里设置的一致
-          GH_TOKEN: ${{ secrets.HEXO_DEPLOY_KEY }} 
+      - name: Build site
         run: |
-          hexo clean
-          hexo generate
-          # 配置 Git 机器人信息
-          git config --global user.name "KingPenguinMan"
-          git config --global user.email "486570489@qq.com"
-          # 部署命令
-          hexo deploy
+          npm run clean
+          npm run build
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          publish_branch: gh-pages
+          cname: 128374.xyz

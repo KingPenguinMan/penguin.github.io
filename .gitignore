@@ -6,3 +6,26 @@ node_modules/
 public/
 .deploy*/
 _multiconfig.yml
+
+# Hexo generated output / cache
+.deploy_git/
+/404.html
+/index.html
+/CNAME
+/search.xml
+/local-search.xml
+/2026/
+/about/
+/archives/
+/categories/
+/tags/
+/links/
+/css/
+/js/
+/img/
+/lib/
+/xml/
+
+# Obsidian local state and plugin packages
+.obsidian/
+source/_posts/.obsidian/

@@ -233,7 +233,7 @@ font:
 
 # 指定自定义 .js 文件路径，支持列表；路径是相对 source 目录，如 /js/custom.js 对应存放目录 source/js/custom.js
 # Specify the path of your custom js file, support list. The path is relative to the source directory, such as `/js/custom.js` corresponding to the directory `source/js/custom.js`
-custom_js:
+custom_js: [/js/custom.js]
 
 # 指定自定义 .css 文件路径，用法和 custom_js 相同
 # The usage is the same as custom_js
@@ -433,7 +433,7 @@ scroll_down_arrow:
   # 头图高度不小于指定比例，才显示箭头
   # Only the height of the banner image is greater than the ratio, the arrow is displayed
   # Available: 0 - 100
-  banner_height_limit: 80
+  banner_height_limit: 100
 
   # 翻页后自动滚动
   # Auto scroll after page turning
