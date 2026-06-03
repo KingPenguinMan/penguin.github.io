@@ -10,7 +10,7 @@
   <rights>All rights reserved 2026, KingPenguinMan</rights>
   <subtitle>Try to be not perfect</subtitle>
   <title>PenguinMan</title>
-  <updated>2026-06-03T13:13:29.298Z</updated>
+  <updated>2026-06-03T13:51:31.590Z</updated>
   <entry>
     <author>
       <name>KingPenguinMan</name>
@@ -29,7 +29,7 @@
     <published>2026-06-03T13:20:00.000Z</published>
     <summary>记录一次 Outlook 邮箱在 Thunderbird 中“微软已授权，但 IMAP 身份验证失败”的完整排查过程，最终通过修正 OAuth scope 解决。</summary>
     <title>Thunderbird 添加 Outlook 邮箱授权成功却登录失败的完整排查与修复</title>
-    <updated>2026-06-03T13:13:29.298Z</updated>
+    <updated>2026-06-03T13:51:31.590Z</updated>
   </entry>
   <entry>
     <author>
@@ -45,7 +45,7 @@
     <published>2026-04-08T08:06:27.000Z</published>
     <summary>Python基本语法学习</summary>
     <title>Basic</title>
-    <updated>2026-05-19T05:01:19.018Z</updated>
+    <updated>2026-06-03T13:51:31.591Z</updated>
   </entry>
   <entry>
     <author>
@@ -61,7 +61,7 @@
     <published>2026-04-08T08:06:10.000Z</published>
     <summary>简单ip扫描器</summary>
     <title>ping sweeper</title>
-    <updated>2026-04-08T12:07:14.389Z</updated>
+    <updated>2026-06-03T13:51:31.591Z</updated>
   </entry>
   <entry>
     <author>
@@ -77,7 +77,7 @@
     <published>2026-04-08T08:05:55.000Z</published>
     <summary>简单的网络命令</summary>
     <title>Common Network Commands</title>
-    <updated>2026-04-08T12:07:11.399Z</updated>
+    <updated>2026-06-03T13:51:31.590Z</updated>
   </entry>
   <entry>
     <author>
@@ -93,7 +93,7 @@
     <published>2026-03-27T09:14:27.000Z</published>
     <summary>linux的基础命令</summary>
     <title>Linux基本语法</title>
-    <updated>2026-04-08T12:06:59.845Z</updated>
+    <updated>2026-06-03T13:51:31.591Z</updated>
   </entry>
   <entry>
     <author>
@@ -109,6 +109,6 @@
     <published>2026-03-17T09:07:36.000Z</published>
     <summary>Here's something encrypted, password is required to continue reading.</summary>
     <title>Why &quot; Try to  be  not perfect &quot;？</title>
-    <updated>2026-05-09T08:55:33.649Z</updated>
+    <updated>2026-06-03T13:51:31.590Z</updated>
   </entry>
 </feed>
