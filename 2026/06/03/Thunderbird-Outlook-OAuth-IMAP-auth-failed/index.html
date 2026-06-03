@@ -1,0 +1,1068 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="https://fastly.jsdelivr.net/gh/KingPenguinMan/image-bed/img/%E7%BD%91%E7%AB%99logo.png">
+  <link rel="icon" href="https://fastly.jsdelivr.net/gh/KingPenguinMan/image-bed/img/%E7%BD%91%E7%AB%99logo.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="KingPenguinMan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="记录一次 Outlook 邮箱在 Thunderbird 中“微软已授权，但 IMAP 身份验证失败”的完整排查过程，最终通过修正 OAuth scope 解决。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Thunderbird 添加 Outlook 邮箱授权成功却登录失败的完整排查与修复">
+<meta property="og:url" content="https://128374.xyz/2026/06/03/Thunderbird-Outlook-OAuth-IMAP-auth-failed/index.html">
+<meta property="og:site_name" content="PenguinMan">
+<meta property="og:description" content="记录一次 Outlook 邮箱在 Thunderbird 中“微软已授权，但 IMAP 身份验证失败”的完整排查过程，最终通过修正 OAuth scope 解决。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-03T13:20:00.000Z">
+<meta property="article:modified_time" content="2026-06-03T13:48:09.873Z">
+<meta property="article:author" content="KingPenguinMan">
+<meta property="article:tag" content="Thunderbird">
+<meta property="article:tag" content="Outlook">
+<meta property="article:tag" content="OAuth2">
+<meta property="article:tag" content="IMAP">
+<meta property="article:tag" content="Windows">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Thunderbird 添加 Outlook 邮箱授权成功却登录失败的完整排查与修复 - PenguinMan</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"128374.xyz","root":"/","version":"1.9.9","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"expand_all":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"openkounter":{"server_url":"https://open-kounter.mintimate.cn","path":"window.location.pathname","ignore_local":false},"umami":{"src":"https://cloud.umami.is/script.js","website_id":"3a7581ad-9ac5-4ab1-b841-5d2a6fca13f1","domains":"128374.xyz","start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":"https://cloud.umami.is"}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        let umami = document.createElement('script');
+        umami.async = true;
+        umami.src = "https://cloud.umami.is/script.js";
+        umami.setAttribute("data-website-id", "3a7581ad-9ac5-4ab1-b841-5d2a6fca13f1");
+        umami.setAttribute("data-domains", "128374.xyz");
+        document.head.appendChild(umami);
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="PenguinMan" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Penguin</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content (desktop) -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile grid menu overlay -->
+<div id="mobile-grid-menu" class="d-lg-none">
+  <div class="mobile-grid-menu-inner">
+    <div class="container">
+      <div class="row">
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-home-fill"></i>
+                  <span>首页</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/archives/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-archive-fill"></i>
+                  <span>归档</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/categories/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-category-fill"></i>
+                  <span>分类</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/tags/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-tags-fill"></i>
+                  <span>标签</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/about/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-user-fill"></i>
+                  <span>关于</span>
+                </div>
+              </a>
+            </div>
+          
+        
+        
+          <div class="col-4 mobile-grid-cell" id="mobile-search-btn">
+            <a href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-search"></i>
+                <span>搜索</span>
+              </div>
+            </a>
+          </div>
+        
+        
+          <div class="col-4 mobile-grid-cell" id="mobile-color-toggle-btn"
+               data-label-light="开灯"
+               data-label-dark="关灯">
+            <a href="javascript:;" aria-label="Color Toggle">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-dark" id="mobile-color-toggle-icon"></i>
+                <span id="mobile-color-toggle-label">关灯</span>
+              </div>
+            </a>
+          </div>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Thunderbird 添加 Outlook 邮箱授权成功却登录失败的完整排查与修复"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-06-03 21:20" pubdate>
+          2026年6月3日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          45 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Thunderbird 添加 Outlook 邮箱授权成功却登录失败的完整排查与修复</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="问题现象"><a href="#问题现象" class="headerlink" title="问题现象"></a>问题现象</h2><p>在 Thunderbird 中添加 Outlook 邮箱时，流程看起来很矛盾：</p>
+<ol>
+<li><p>Thunderbird 能正常跳转到 Microsoft 登录页面。</p>
+</li>
+<li><p>Microsoft 账号也发来了安全通知邮件，提示：</p>
+<blockquote>
+<p>Thunderbird 已连接到 Microsoft 账户。</p>
+</blockquote>
+</li>
+<li><p>但是回到 Thunderbird 后，仍然提示：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">身份验证出错。<br>无法登录到服务器。可能是配置、用户名或者密码错误。<br></code></pre></td></tr></table></figure></li>
+</ol>
+<p>也就是说，Microsoft 侧已经确认“授权成功”，但 Thunderbird 侧依旧无法通过 IMAP 登录邮箱。</p>
+<p>这类问题最容易误判成密码错误、IMAP 没打开、服务器地址填错，但这次真正的问题并不在这些地方。</p>
+<h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><p>本次环境如下：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs text">系统：Windows<br>客户端：Mozilla Thunderbird 151.0.1<br>邮箱：Outlook.com<br>收件协议：IMAP<br>发件协议：SMTP<br>认证方式：OAuth2<br></code></pre></td></tr></table></figure>
+
+<p>Outlook 网页版中的设置已经确认打开：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">设置 -&gt; 邮件 -&gt; 转发和 IMAP -&gt; 允许设备和应用使用 IMAP<br></code></pre></td></tr></table></figure>
+
+<p>网络连通性也正常：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-built_in">Test-NetConnection</span> outlook.office365.com <span class="hljs-literal">-Port</span> <span class="hljs-number">993</span><br><span class="hljs-built_in">Test-NetConnection</span> smtp.office365.com <span class="hljs-literal">-Port</span> <span class="hljs-number">587</span><br><span class="hljs-built_in">Test-NetConnection</span> login.microsoftonline.com <span class="hljs-literal">-Port</span> <span class="hljs-number">443</span><br></code></pre></td></tr></table></figure>
+
+<p>结果均为 <code>TcpOpen: True</code>。</p>
+<h2 id="正确的服务器配置"><a href="#正确的服务器配置" class="headerlink" title="正确的服务器配置"></a>正确的服务器配置</h2><p>Thunderbird 中 Outlook 邮箱的基础配置应该是：</p>
+<h3 id="IMAP-收件服务器"><a href="#IMAP-收件服务器" class="headerlink" title="IMAP 收件服务器"></a>IMAP 收件服务器</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs text">服务器：outlook.office365.com<br>端口：993<br>连接安全性：SSL/TLS<br>认证方式：OAuth2<br>用户名：完整 Outlook 邮箱地址<br></code></pre></td></tr></table></figure>
+
+<h3 id="SMTP-发件服务器"><a href="#SMTP-发件服务器" class="headerlink" title="SMTP 发件服务器"></a>SMTP 发件服务器</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs text">服务器：smtp.office365.com<br>端口：587<br>连接安全性：STARTTLS<br>认证方式：OAuth2<br>用户名：完整 Outlook 邮箱地址<br></code></pre></td></tr></table></figure>
+
+<p>也可以见到有人使用：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">smtp-mail.outlook.com<br></code></pre></td></tr></table></figure>
+
+<p>但在 Thunderbird 的 OAuth2 场景下，<code>smtp.office365.com</code> 通常更稳。</p>
+<h2 id="排查过程"><a href="#排查过程" class="headerlink" title="排查过程"></a>排查过程</h2><h3 id="1-排除-IMAP-开关问题"><a href="#1-排除-IMAP-开关问题" class="headerlink" title="1. 排除 IMAP 开关问题"></a>1. 排除 IMAP 开关问题</h3><p>首先检查 Outlook 网页版：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">设置 -&gt; 邮件 -&gt; 转发和 IMAP<br></code></pre></td></tr></table></figure>
+
+<p>确认：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">允许设备和应用使用 IMAP：已开启<br></code></pre></td></tr></table></figure>
+
+<p>这说明 Outlook 允许第三方客户端使用 IMAP。</p>
+<h3 id="2-排除网络问题"><a href="#2-排除网络问题" class="headerlink" title="2. 排除网络问题"></a>2. 排除网络问题</h3><p>本机测试端口：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-built_in">Test-NetConnection</span> outlook.office365.com <span class="hljs-literal">-Port</span> <span class="hljs-number">993</span><br><span class="hljs-built_in">Test-NetConnection</span> smtp.office365.com <span class="hljs-literal">-Port</span> <span class="hljs-number">587</span><br><span class="hljs-built_in">Test-NetConnection</span> login.microsoftonline.com <span class="hljs-literal">-Port</span> <span class="hljs-number">443</span><br></code></pre></td></tr></table></figure>
+
+<p>结果都能连通，所以不是网络、防火墙、代理导致的连接失败。</p>
+<h3 id="3-排除密码问题"><a href="#3-排除密码问题" class="headerlink" title="3. 排除密码问题"></a>3. 排除密码问题</h3><p>如果是普通密码错误，Microsoft 一般不会发来“新应用有权访问你的数据”的通知。</p>
+<p>这次 Microsoft 已经明确发信说明 Thunderbird 连上了 Microsoft 账户，所以至少 OAuth 登录流程已经跑通。</p>
+<p>因此问题不是“账号密码没通过”，而是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">Microsoft 授权成功后，Thunderbird 拿到的 token 无法被 IMAP 服务接受。<br></code></pre></td></tr></table></figure>
+
+<h3 id="4-排除-Thunderbird-自动配置错误"><a href="#4-排除-Thunderbird-自动配置错误" class="headerlink" title="4. 排除 Thunderbird 自动配置错误"></a>4. 排除 Thunderbird 自动配置错误</h3><p>Thunderbird 自动生成过一组错误配置：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">IMAP 端口：997<br>SMTP 主机：.outlook.com<br></code></pre></td></tr></table></figure>
+
+<p>这明显不对。</p>
+<p>后来手动修正为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">IMAP: outlook.office365.com:993 SSL/TLS OAuth2<br>SMTP: smtp.office365.com:587 STARTTLS OAuth2<br></code></pre></td></tr></table></figure>
+
+<p>但修完后仍然失败，说明服务器地址虽然必须正确，但还不是最终根因。</p>
+<h3 id="5-清理旧授权缓存"><a href="#5-清理旧授权缓存" class="headerlink" title="5. 清理旧授权缓存"></a>5. 清理旧授权缓存</h3><p>Thunderbird 的 OAuth token 存在配置目录下的登录缓存中，例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">logins.json<br>cookies.sqlite<br></code></pre></td></tr></table></figure>
+
+<p>曾经失败过的 Microsoft OAuth 登录状态可能会被继续复用。</p>
+<p>因此清理了 Microsoft 相关缓存：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">oauth://login.microsoftonline.com<br>login.microsoftonline.com<br>outlook.office.com<br>office365<br></code></pre></td></tr></table></figure>
+
+<p>清理后重新授权，依旧失败。</p>
+<p>这说明问题已经不是旧缓存，而是 Thunderbird 请求 OAuth 权限时的 scope 本身有问题。</p>
+<h2 id="真正原因：OAuth-scope-过宽"><a href="#真正原因：OAuth-scope-过宽" class="headerlink" title="真正原因：OAuth scope 过宽"></a>真正原因：OAuth scope 过宽</h2><p>OAuth2 不是简单的“登录成功就能访问所有东西”。</p>
+<p>它的授权过程会带上一组权限范围，也就是 <code>scope</code>。</p>
+<p>Thunderbird 请求 Microsoft 邮箱权限时，可能会带上类似这样的 scope：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">https://outlook.office.com/IMAP.AccessAsUser.All<br>https://outlook.office.com/POP.AccessAsUser.All<br>https://outlook.office.com/SMTP.Send<br>offline_access<br></code></pre></td></tr></table></figure>
+
+<p>这里的问题是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">POP.AccessAsUser.All<br></code></pre></td></tr></table></figure>
+
+<p>虽然用户实际使用的是 IMAP，但 Thunderbird 可能把 POP 权限也一起请求了。</p>
+<p>Outlook.com 最近对第三方客户端 OAuth scope 比较敏感，于是出现了这种割裂现象：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">Microsoft 账号层面：授权成功<br>Outlook IMAP 服务层面：token 不被接受<br>Thunderbird 表现：身份验证失败<br></code></pre></td></tr></table></figure>
+
+<p>也就是说，失败不是因为“没有授权”，而是因为“授权 token 的权限组合不合适”。</p>
+<h2 id="最终修复"><a href="#最终修复" class="headerlink" title="最终修复"></a>最终修复</h2><p>最终修复方式是给 Thunderbird 的 Outlook 账号显式指定 OAuth scope，只请求真正需要的权限。</p>
+<p>正确 scope：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">https://outlook.office.com/IMAP.AccessAsUser.All<br>https://outlook.office.com/SMTP.Send<br>offline_access<br></code></pre></td></tr></table></figure>
+
+<p>不要带：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">https://outlook.office.com/POP.AccessAsUser.All<br></code></pre></td></tr></table></figure>
+
+<p>对应到 Thunderbird 的 <code>prefs.js</code>，关键配置类似这样：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-title function_">user_pref</span>(<span class="hljs-string">&quot;mail.server.server12.authMethod&quot;</span>, <span class="hljs-number">10</span>);<br><span class="hljs-title function_">user_pref</span>(<span class="hljs-string">&quot;mail.server.server12.hostname&quot;</span>, <span class="hljs-string">&quot;outlook.office365.com&quot;</span>);<br><span class="hljs-title function_">user_pref</span>(<span class="hljs-string">&quot;mail.server.server12.port&quot;</span>, <span class="hljs-number">993</span>);<br><span class="hljs-title function_">user_pref</span>(<span class="hljs-string">&quot;mail.server.server12.socketType&quot;</span>, <span class="hljs-number">3</span>);<br><span class="hljs-title function_">user_pref</span>(<span class="hljs-string">&quot;mail.server.server12.type&quot;</span>, <span class="hljs-string">&quot;imap&quot;</span>);<br><span class="hljs-title function_">user_pref</span>(<span class="hljs-string">&quot;mail.server.server12.userName&quot;</span>, <span class="hljs-string">&quot;your-name@outlook.com&quot;</span>);<br><span class="hljs-title function_">user_pref</span>(<span class="hljs-string">&quot;mail.server.server12.oauth2.scope&quot;</span>, <span class="hljs-string">&quot;https://outlook.office.com/IMAP.AccessAsUser.All https://outlook.office.com/SMTP.Send offline_access&quot;</span>);<br><br><span class="hljs-title function_">user_pref</span>(<span class="hljs-string">&quot;mail.smtpserver.smtp4.authMethod&quot;</span>, <span class="hljs-number">10</span>);<br><span class="hljs-title function_">user_pref</span>(<span class="hljs-string">&quot;mail.smtpserver.smtp4.hostname&quot;</span>, <span class="hljs-string">&quot;smtp.office365.com&quot;</span>);<br><span class="hljs-title function_">user_pref</span>(<span class="hljs-string">&quot;mail.smtpserver.smtp4.port&quot;</span>, <span class="hljs-number">587</span>);<br><span class="hljs-title function_">user_pref</span>(<span class="hljs-string">&quot;mail.smtpserver.smtp4.try_ssl&quot;</span>, <span class="hljs-number">2</span>);<br><span class="hljs-title function_">user_pref</span>(<span class="hljs-string">&quot;mail.smtpserver.smtp4.username&quot;</span>, <span class="hljs-string">&quot;your-name@outlook.com&quot;</span>);<br><span class="hljs-title function_">user_pref</span>(<span class="hljs-string">&quot;mail.smtpserver.smtp4.oauth2.scope&quot;</span>, <span class="hljs-string">&quot;https://outlook.office.com/IMAP.AccessAsUser.All https://outlook.office.com/SMTP.Send offline_access&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+<p>其中：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">authMethod = 10<br></code></pre></td></tr></table></figure>
+
+<p>表示 OAuth2。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">socketType = 3<br></code></pre></td></tr></table></figure>
+
+<p>表示 SSL&#x2F;TLS。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">try_ssl = 2<br></code></pre></td></tr></table></figure>
+
+<p>表示 STARTTLS。</p>
+<h2 id="修复后的操作顺序"><a href="#修复后的操作顺序" class="headerlink" title="修复后的操作顺序"></a>修复后的操作顺序</h2><p>推荐顺序如下：</p>
+<h3 id="1-关闭-Thunderbird"><a href="#1-关闭-Thunderbird" class="headerlink" title="1. 关闭 Thunderbird"></a>1. 关闭 Thunderbird</h3><p>确保 Thunderbird 没有后台进程。</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-built_in">Get-Process</span> <span class="hljs-literal">-Name</span> thunderbird <span class="hljs-literal">-ErrorAction</span> SilentlyContinue | <span class="hljs-built_in">Stop-Process</span> <span class="hljs-literal">-Force</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-备份配置"><a href="#2-备份配置" class="headerlink" title="2. 备份配置"></a>2. 备份配置</h3><p>配置文件一般在：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">C:\Users\&lt;用户名&gt;\AppData\Roaming\Thunderbird\Profiles\&lt;profile&gt;\prefs.js<br></code></pre></td></tr></table></figure>
+
+<p>先备份：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-built_in">Copy-Item</span> prefs.js prefs<span class="hljs-literal">-before-outlook-fix</span>.js<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-修正服务器配置"><a href="#3-修正服务器配置" class="headerlink" title="3. 修正服务器配置"></a>3. 修正服务器配置</h3><p>确保 IMAP 和 SMTP 都是 OAuth2。</p>
+<h3 id="4-写入最小-OAuth-scope"><a href="#4-写入最小-OAuth-scope" class="headerlink" title="4. 写入最小 OAuth scope"></a>4. 写入最小 OAuth scope</h3><p>只保留：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">IMAP.AccessAsUser.All<br>SMTP.Send<br>offline_access<br></code></pre></td></tr></table></figure>
+
+<h3 id="5-清理-Microsoft-旧-token"><a href="#5-清理-Microsoft-旧-token" class="headerlink" title="5. 清理 Microsoft 旧 token"></a>5. 清理 Microsoft 旧 token</h3><p>删除 Thunderbird 中 Microsoft 相关登录缓存，让它重新授权。</p>
+<p>缓存通常位于：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">logins.json<br>cookies.sqlite<br></code></pre></td></tr></table></figure>
+
+<p>注意：如果还有 Gmail、QQ 邮箱，不要粗暴删除全部密码记录，否则其它邮箱也要重新登录。</p>
+<h3 id="6-重启-Thunderbird"><a href="#6-重启-Thunderbird" class="headerlink" title="6. 重启 Thunderbird"></a>6. 重启 Thunderbird</h3><p>重新触发 Microsoft 登录授权。</p>
+<p>授权完成后，IMAP 就可以正常同步 Outlook 邮箱。</p>
+<h2 id="为什么-Outlook-网页端开了-IMAP-仍然失败"><a href="#为什么-Outlook-网页端开了-IMAP-仍然失败" class="headerlink" title="为什么 Outlook 网页端开了 IMAP 仍然失败"></a>为什么 Outlook 网页端开了 IMAP 仍然失败</h2><p>Outlook 网页端的 IMAP 开关只表示：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">允许第三方客户端使用 IMAP 协议<br></code></pre></td></tr></table></figure>
+
+<p>但 OAuth2 还多了一层：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">客户端拿到的 token 是否拥有正确的权限范围<br></code></pre></td></tr></table></figure>
+
+<p>这两个条件都要满足：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">IMAP 开关打开<br>OAuth token scope 正确<br></code></pre></td></tr></table></figure>
+
+<p>只满足第一个不够。</p>
+<p>这就是为什么网页端明明开了 IMAP，Microsoft 也发了授权成功邮件，但 Thunderbird 还是失败。</p>
+<h2 id="经验总结"><a href="#经验总结" class="headerlink" title="经验总结"></a>经验总结</h2><p>这次问题的判断关键是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">Microsoft 已发授权成功邮件，但 Thunderbird 仍认证失败。<br></code></pre></td></tr></table></figure>
+
+<p>这说明问题不在密码，也不在普通连接配置，而在 OAuth token 的使用阶段。</p>
+<p>最终结论：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">Thunderbird 添加 Outlook 邮箱时，如果授权成功但 IMAP 登录失败，可以检查 OAuth scope 是否包含 POP 权限。<br></code></pre></td></tr></table></figure>
+
+<p>最稳的 scope 是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">https://outlook.office.com/IMAP.AccessAsUser.All<br>https://outlook.office.com/SMTP.Send<br>offline_access<br></code></pre></td></tr></table></figure>
+
+<p>简单说：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">只申请要用的权限，不要让 Thunderbird 顺手申请 POP。<br></code></pre></td></tr></table></figure>
+
+<p>权限越干净，Outlook 越容易接受。</p>
+<h2 id="最终配置速查"><a href="#最终配置速查" class="headerlink" title="最终配置速查"></a>最终配置速查</h2><h3 id="收件"><a href="#收件" class="headerlink" title="收件"></a>收件</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs text">协议：IMAP<br>服务器：outlook.office365.com<br>端口：993<br>安全性：SSL/TLS<br>认证：OAuth2<br></code></pre></td></tr></table></figure>
+
+<h3 id="发件"><a href="#发件" class="headerlink" title="发件"></a>发件</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs text">协议：SMTP<br>服务器：smtp.office365.com<br>端口：587<br>安全性：STARTTLS<br>认证：OAuth2<br></code></pre></td></tr></table></figure>
+
+<h3 id="OAuth-scope"><a href="#OAuth-scope" class="headerlink" title="OAuth scope"></a>OAuth scope</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">https://outlook.office.com/IMAP.AccessAsUser.All https://outlook.office.com/SMTP.Send offline_access<br></code></pre></td></tr></table></figure>
+
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>这类问题表面上是“身份验证失败”，实际上是 OAuth 授权细节问题。</p>
+<p>Thunderbird 能弹出 Microsoft 登录窗口、Microsoft 能发授权成功邮件，只能说明第一阶段登录成功；真正收信时，Outlook IMAP 服务还会检查 token 的权限范围。</p>
+<p>当 Thunderbird 请求了多余的 POP 权限后，Outlook 可能会接受授权，但拒绝后续 IMAP 登录。</p>
+<p>最终通过精简 OAuth scope，让 token 只包含 IMAP、SMTP 和离线访问权限，问题解决。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/bug/" class="category-chain-item">bug</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Thunderbird/" class="print-no-link">#Thunderbird</a>
+      
+        <a href="/tags/Outlook/" class="print-no-link">#Outlook</a>
+      
+        <a href="/tags/OAuth2/" class="print-no-link">#OAuth2</a>
+      
+        <a href="/tags/IMAP/" class="print-no-link">#IMAP</a>
+      
+        <a href="/tags/Windows/" class="print-no-link">#Windows</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Thunderbird 添加 Outlook 邮箱授权成功却登录失败的完整排查与修复</div>
+      <div>https://128374.xyz/2026/06/03/Thunderbird-Outlook-OAuth-IMAP-auth-failed/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>KingPenguinMan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年6月3日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2026年6月3日</div>
+        </div>
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="NC - 非商业性使用">
+                    <i class="iconfont icon-cc-nc"></i>
+                  </span>
+                </a>
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="SA - 相同方式共享">
+                    <i class="iconfont icon-cc-sa"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/04/08/%E7%AC%94%E8%AE%B0/Python/Basic/" title="Basic">
+                        <span class="hidden-mobile">Basic</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="waline"></div>
+  <script type="module">
+    Fluid.utils.loadComments('#waline', function() {
+      Fluid.utils.createCssLink('https://lib.baomitu.com/waline/3.6.0/waline.css')
+      import('https://lib.baomitu.com/waline/3.6.0/waline.js').then(({ init }) => {
+        var options = Object.assign(
+          {"serverURL":"https://waline-comment-8t9g.vercel.app","path":"window.location.pathname","meta":["nick","mail","link"],"requiredMeta":["nick"],"lang":"zh-CN","emoji":["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],"dark":"html[data-user-color-scheme=\"dark\"]","wordLimit":0,"pageSize":10},
+          {
+            el: '#waline',
+            path: window.location.pathname
+          }
+        )
+        init(options);
+        Fluid.utils.waitElementVisible('#waline .vcontent', () => {
+          var imgSelector = '#waline .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; letter-spacing: 0.5px;"> <a href="https://github.com/KingPenguinMan" target="_blank" rel="nofollow noopener" style="text-decoration: none;"> <span style="font-weight: 600;">KingPenguinMan</span> </a>
+<span style="margin: 0 8px; position: relative; bottom: 1px;"> <i class="iconfont icon-love" style="color: #ff5252; font-size: 14px; animation: heartBeat 1.5s ease-in-out infinite;"></i> </span>
+<a href="https://github.com/KingPenguinMan" target="_blank" rel="nofollow noopener" style="text-decoration: none;"> <span style="font-weight: 600; background: linear-gradient(to right, #00d4ff, #0080ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Excalibur</span> </a>
+<div style="margin-top: 8px; font-size: 0.8rem; opacity: 0.6;"> <span id="runtime_span">Since 2026</span> <span style="margin: 0 5px; color: #00ff88; animation: blink 1.5s infinite;">●</span> <span>Secure Connection Established</span> </div> </div>
+<style> @keyframes heartBeat { 0% { transform: scale(1); } 14% { transform: scale(1.1); } 28% { transform: scale(1); } 42% { transform: scale(1.1); } 70% { transform: scale(1); } } @keyframes blink { 0% { opacity: 0.2; } 50% { opacity: 1; } 100% { opacity: 0.2; } } </style> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    function isExpandAllEnabled() {
+      return CONFIG.toc && CONFIG.toc.expand_all === true;
+    }
+    function expandAllToc() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .tocbot-is-collapsed').removeClass('tocbot-is-collapsed');
+    }
+    function updateTocToggle($li, $childList) {
+      var $toggle = $li.children('.toc-toggle');
+      if ($toggle.length === 0) { return; }
+      var collapsed = $childList.hasClass('tocbot-is-collapsed');
+      $toggle
+        .toggleClass('toc-toggle-collapsed', collapsed)
+        .toggleClass('toc-toggle-expanded', !collapsed);
+    }
+    function bindTocToggle() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .toc-list-item').each(function() {
+        var $li = jQuery(this);
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) {
+          if ($li.children('.toc-toggle').length === 0) {
+            $li.prepend('<span class="toc-toggle toc-toggle-placeholder" aria-hidden="true">›</span>');
+          }
+          return;
+        }
+
+        if ($li.children('.toc-toggle').length === 0) {
+          $li.prepend('<span class="toc-toggle toc-toggle-expanded" aria-hidden="true">›</span>');
+        }
+        updateTocToggle($li, $childList);
+      });
+      jQuery('#toc-body').off('click.tocToggle').on('click.tocToggle', '.toc-toggle', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var $li = jQuery(this).parent('.toc-list-item');
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) { return; }
+        $childList.toggleClass('tocbot-is-collapsed');
+        updateTocToggle($li, $childList);
+      });
+      if (!window.__tocToggleObserver) {
+        window.__tocToggleObserver = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type !== 'attributes' || mutation.attributeName !== 'class') { return; }
+            var $list = jQuery(mutation.target);
+            var $li = $list.parent('.toc-list-item');
+            if ($li.length === 0) { return; }
+            updateTocToggle($li, $list);
+          });
+        });
+        jQuery('#toc-body ol').each(function() {
+          window.__tocToggleObserver.observe(this, { attributes: true });
+        });
+      }
+    }
+    var tocConfig = Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc);
+    if (isExpandAllEnabled()) {
+      tocConfig.collapseDepth = 6;
+    }
+    window.tocbot.init(tocConfig);
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+    expandAllToc();
+    bindTocToggle();
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+        expandAllToc();
+        bindTocToggle();
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/openkounter.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+  
+<script src="/js/custom.js"></script>
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
