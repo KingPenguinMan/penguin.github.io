@@ -83,34 +83,6 @@
 
   
   <url>
-    <loc>https://128374.xyz/tags/%E6%9D%82%E8%B0%88/</loc>
-    <lastmod>2026-07-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://128374.xyz/tags/kali/</loc>
-    <lastmod>2026-07-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://128374.xyz/tags/Python/</loc>
-    <lastmod>2026-07-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://128374.xyz/tags/linux/</loc>
-    <lastmod>2026-07-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://128374.xyz/tags/Thunderbird/</loc>
     <lastmod>2026-07-09</lastmod>
     <changefreq>weekly</changefreq>
@@ -140,6 +112,13 @@
   
   <url>
     <loc>https://128374.xyz/tags/Windows/</loc>
+    <lastmod>2026-07-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://128374.xyz/tags/%E6%9D%82%E8%B0%88/</loc>
     <lastmod>2026-07-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -180,7 +159,35 @@
     <priority>0.2</priority>
   </url>
   
+  <url>
+    <loc>https://128374.xyz/tags/kali/</loc>
+    <lastmod>2026-07-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://128374.xyz/tags/Python/</loc>
+    <lastmod>2026-07-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://128374.xyz/tags/linux/</loc>
+    <lastmod>2026-07-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
 
+  
+  <url>
+    <loc>https://128374.xyz/categories/bug/</loc>
+    <lastmod>2026-07-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
   
   <url>
     <loc>https://128374.xyz/categories/story/</loc>
@@ -205,13 +212,6 @@
   
   <url>
     <loc>https://128374.xyz/categories/linux/</loc>
-    <lastmod>2026-07-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://128374.xyz/categories/bug/</loc>
     <lastmod>2026-07-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
