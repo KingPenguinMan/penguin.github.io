@@ -1,0 +1,1137 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="https://fastly.jsdelivr.net/gh/KingPenguinMan/image-bed/img/%E7%BD%91%E7%AB%99logo.png">
+  <link rel="icon" href="https://fastly.jsdelivr.net/gh/KingPenguinMan/image-bed/img/%E7%BD%91%E7%AB%99logo.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="KingPenguinMan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="记录一次旧 Android 游戏联机功能修复：保留原生 native 比赛同步逻辑，替换失效的快牙 SDK 房间发现和加入流程，让十年前的《格斗足球》重新完成局域网联机。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="修复十年前快牙游戏《格斗足球》的局域网联机">
+<meta property="og:url" content="https://128374.xyz/2026/07/09/repair-fight-football-lan-mode/index.html">
+<meta property="og:site_name" content="PenguinMan">
+<meta property="og:description" content="记录一次旧 Android 游戏联机功能修复：保留原生 native 比赛同步逻辑，替换失效的快牙 SDK 房间发现和加入流程，让十年前的《格斗足球》重新完成局域网联机。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://fastly.jsdelivr.net/gh/KingPenguinMan/image-bed/img/football-lan-fix/host-room-created.png">
+<meta property="article:published_time" content="2026-07-09T13:20:00.000Z">
+<meta property="article:modified_time" content="2026-07-14T11:12:49.694Z">
+<meta property="article:author" content="KingPenguinMan">
+<meta property="article:tag" content="Android">
+<meta property="article:tag" content="APK">
+<meta property="article:tag" content="Smali">
+<meta property="article:tag" content="局域网联机">
+<meta property="article:tag" content="逆向调试">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://fastly.jsdelivr.net/gh/KingPenguinMan/image-bed/img/football-lan-fix/host-room-created.png">
+  
+  
+  
+  <title>修复十年前快牙游戏《格斗足球》的局域网联机 - PenguinMan</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"128374.xyz","root":"/","version":"1.9.9","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"expand_all":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"openkounter":{"server_url":"https://open-kounter.mintimate.cn","path":"window.location.pathname","ignore_local":false},"umami":{"src":"https://cloud.umami.is/script.js","website_id":"3a7581ad-9ac5-4ab1-b841-5d2a6fca13f1","domains":"128374.xyz","start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":"https://cloud.umami.is"}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        let umami = document.createElement('script');
+        umami.async = true;
+        umami.src = "https://cloud.umami.is/script.js";
+        umami.setAttribute("data-website-id", "3a7581ad-9ac5-4ab1-b841-5d2a6fca13f1");
+        umami.setAttribute("data-domains", "128374.xyz");
+        document.head.appendChild(umami);
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="PenguinMan" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Penguin</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content (desktop) -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile grid menu overlay -->
+<div id="mobile-grid-menu" class="d-lg-none">
+  <div class="mobile-grid-menu-inner">
+    <div class="container">
+      <div class="row">
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-home-fill"></i>
+                  <span>首页</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/archives/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-archive-fill"></i>
+                  <span>归档</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/categories/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-category-fill"></i>
+                  <span>分类</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/tags/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-tags-fill"></i>
+                  <span>标签</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/about/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-user-fill"></i>
+                  <span>关于</span>
+                </div>
+              </a>
+            </div>
+          
+        
+        
+          <div class="col-4 mobile-grid-cell" id="mobile-search-btn">
+            <a href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-search"></i>
+                <span>搜索</span>
+              </div>
+            </a>
+          </div>
+        
+        
+          <div class="col-4 mobile-grid-cell" id="mobile-color-toggle-btn"
+               data-label-light="开灯"
+               data-label-dark="关灯">
+            <a href="javascript:;" aria-label="Color Toggle">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-dark" id="mobile-color-toggle-icon"></i>
+                <span id="mobile-color-toggle-label">关灯</span>
+              </div>
+            </a>
+          </div>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://fastly.jsdelivr.net/gh/KingPenguinMan/image-bed/img/football-lan-fix/host-room-created.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="修复十年前快牙游戏《格斗足球》的局域网联机"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-07-09 21:20" pubdate>
+          2026年7月9日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          58 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">修复十年前快牙游戏《格斗足球》的局域网联机</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>这次修的是一个已经很久没人维护的 Android 游戏：《格斗足球》。它当年的联机依赖快牙 SDK，创建房间时还能看到熟悉的热点名前缀：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">*#FFB# FightFootball<br></code></pre></td></tr></table></figure>
+
+<p>问题是，游戏本身太老，旧快牙 SDK 在现在的 Android、模拟器和真机环境里已经不能可靠工作。最开始的表现是：</p>
+<ol>
+<li>一台设备可以创建房间。</li>
+<li>另一台设备点击加入后一直转圈。</li>
+<li>房主端看不到稳定的加入请求。</li>
+<li>后续即使强行推进到选人界面，也可能 ready 后崩溃，或者房主端卡死。</li>
+</ol>
+<p>除了联机，APK 还有现代设备兼容问题：不是全屏，启动时还会提示 SDK 版本过低。不过这篇主要记录联机修复的排错过程。</p>
+<h2 id="最初现象"><a href="#最初现象" class="headerlink" title="最初现象"></a>最初现象</h2><p>创建房间这一步仍然能触发原游戏 UI：</p>
+<p><img src="https://fastly.jsdelivr.net/gh/KingPenguinMan/image-bed/img/football-lan-fix/host-room-created.png" srcset="/img/loading.gif" lazyload alt="房间创建成功"></p>
+<p>另一台设备能看到房间后，点击加入：</p>
+<p><img src="https://fastly.jsdelivr.net/gh/KingPenguinMan/image-bed/img/football-lan-fix/client-room-found.png" srcset="/img/loading.gif" lazyload alt="客户端发现房间"></p>
+<p>早期大部分尝试都会卡在这个 loading：</p>
+<p><img src="https://fastly.jsdelivr.net/gh/KingPenguinMan/image-bed/img/football-lan-fix/client-joining.png" srcset="/img/loading.gif" lazyload alt="加入中卡住"></p>
+<p>这个现象很容易误判成三个方向：</p>
+<ol>
+<li>两台设备不在同一局域网。</li>
+<li>UDP 广播发现失败。</li>
+<li>房主端 TCP 端口没有打开。</li>
+</ol>
+<p>这些方向都查过，但后来证明它们只解释了一部分现象。真正的问题分成两层：</p>
+<ol>
+<li>Java 层的快牙 SDK 房间发现和加入流程确实失效。</li>
+<li>native 层的比赛同步逻辑仍然可用，但非常依赖 Java 层传进去的玩家 IP、玩家顺序和身份信息。</li>
+</ol>
+<p>也就是说，不能只让房间列表里出现一个按钮。必须让原游戏 native 层认为“这是一个合法的两人房间”。</p>
+<h2 id="为什么没有从零重写"><a href="#为什么没有从零重写" class="headerlink" title="为什么没有从零重写"></a>为什么没有从零重写</h2><p>中途也尝试过用 Godot 重新做一个优化版。理论上，美术资源、UI 图片、音效、部分配置都能从 APK 解包出来，但这并不等于能直接得到一个可运行的工程。</p>
+<p>主要困难有几个：</p>
+<ol>
+<li>APK 里的资源不是 Godot 工程资源。</li>
+<li>碰撞、动作、技能、角色状态机大量固化在 native 二进制里。</li>
+<li>球物理、射门判定、进球判定、AI 和镜头都要重新实现。</li>
+<li>即使素材完全复用，手感仍然要重新调。</li>
+<li>联机同步如果重写，状态同步、延迟处理和结算一致性也都要重新设计。</li>
+</ol>
+<p>所以最后判断：如果目标是“让老游戏能继续玩”，修原 APK 比重写更现实。</p>
+<h2 id="总体策略"><a href="#总体策略" class="headerlink" title="总体策略"></a>总体策略</h2><p>最终策略是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">保留：原游戏 native 比赛同步逻辑<br>替换：旧快牙 SDK 的房间发现、加入、玩家列表<br>补齐：现代 Android SDK 提示和全屏显示<br></code></pre></td></tr></table></figure>
+
+<p>这次没有重写比赛逻辑，也没有修改 <code>libcocos2dcpp.so</code> 里的核心同步协议。真正动的是 Java&#x2F;smali 层，让它重新向 native 层提供正确的玩家信息。</p>
+<p>整体链路是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs text">房主点击创建房间<br>  -&gt; 自建 LanGameCenter 启动 lobby 服务<br>  -&gt; 客户端搜索房间<br>  -&gt; 客户端通过 TCP 请求加入<br>  -&gt; 房主保存客户端名称、IP、状态<br>  -&gt; ZapyaGameCenter.getAllUsers() 返回伪造玩家列表<br>  -&gt; native ZapyaJNI::Init 读取玩家信息<br>  -&gt; 原 SocketClient / SocketServer 继续同步比赛<br></code></pre></td></tr></table></figure>
+
+<p>这条路线的关键是：快牙 SDK 可以替换，但 native 看到的数据结构要尽量保持原样。</p>
+<h2 id="第一步：确认-APK-结构"><a href="#第一步：确认-APK-结构" class="headerlink" title="第一步：确认 APK 结构"></a>第一步：确认 APK 结构</h2><p>先用 <code>apktool</code> 和 <code>jadx</code> 分别看 smali 和 Java 结构。比较关键的类包括：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">com.ZapyaGame.Activity.GameActivity<br>com.ZapyaGame.Activity.ZapyaGameCenter<br>com.ZapyaGame.Activity.PlayerInfo<br>com.ZapyaGame.Activity.LanGameCenter<br></code></pre></td></tr></table></figure>
+
+<p>原游戏 native 层会通过 <code>ZapyaGameCenter</code> 取得玩家列表，再把玩家 IP、名字、ID 传给 C++ 层。</p>
+<p>这里有一个重要结论：<br>房间列表 UI 能显示，不代表 native 层已经拿到了正确玩家列表。选人界面能打开，也不代表比赛同步已经稳定。</p>
+<h2 id="第二步：替换房间发现"><a href="#第二步：替换房间发现" class="headerlink" title="第二步：替换房间发现"></a>第二步：替换房间发现</h2><p>旧快牙 SDK 的发现流程已经不可用，所以重构了一个本地 <code>LanGameCenter</code>。</p>
+<p>它做几件事：</p>
+<ol>
+<li>创建房间时启动 TCP lobby 服务。</li>
+<li>搜索时生成房间列表。</li>
+<li>加入时向房主发送加入请求。</li>
+<li>房主收到请求后保存客户端。</li>
+<li>双方进入选人前，生成原游戏需要的玩家列表。</li>
+</ol>
+<p>测试模拟器时，为了绕开模拟器广播和互联不稳定的问题，还加入了一个 ADB 测试房间：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">*#FFB# ADB|127.0.0.1|9876<br></code></pre></td></tr></table></figure>
+
+<p>配套的 ADB 桥接是：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs powershell">adb <span class="hljs-literal">-s</span> emulator<span class="hljs-literal">-5554</span> forward tcp:<span class="hljs-number">19876</span> tcp:<span class="hljs-number">9876</span><br>adb <span class="hljs-literal">-s</span> emulator<span class="hljs-literal">-5556</span> reverse tcp:<span class="hljs-number">9876</span> tcp:<span class="hljs-number">19876</span><br></code></pre></td></tr></table></figure>
+
+<p>这里 <code>9876</code> 是自建 lobby 端口。这个阶段解决的是“点加入能不能通知房主”。</p>
+<h2 id="第三步：加入成功但仍然崩溃"><a href="#第三步：加入成功但仍然崩溃" class="headerlink" title="第三步：加入成功但仍然崩溃"></a>第三步：加入成功但仍然崩溃</h2><p>早期修完 lobby 后，现象变成了：</p>
+<ol>
+<li>房主能进入选人界面。</li>
+<li>加入端仍然转圈，或者稍后进入选人界面。</li>
+<li>双方 ready 后，加入端崩溃，房主端卡死。</li>
+</ol>
+<p>这说明 Java 层 lobby 已经往前推进了，但 native 层比赛通信仍然不对。</p>
+<p>抓日志时看到过这些关键行：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs text">ZapyaJNI::Init<br>clients num 2<br>SocketClient::CreateTCPSend<br>client Send msg: 9 to ip: 127.0.0.1<br>GameReceive msg 9<br>heartBeatResponse<br></code></pre></td></tr></table></figure>
+
+<p>以及 native crash：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">FORTIFY: pthread_mutex_lock called on a destroyed mutex<br>SocketClient::CreateTCPSocket<br>SocketServer::CreateTCPAccept<br></code></pre></td></tr></table></figure>
+
+<p>单看 <code>pthread_mutex_lock called on a destroyed mutex</code>，很容易以为是线程生命周期 bug。但结合前后的网络日志，实际更像是错误连接状态引发了 native 内部资源释放顺序问题。</p>
+<h2 id="第四步：找-native-真正需要什么"><a href="#第四步：找-native-真正需要什么" class="headerlink" title="第四步：找 native 真正需要什么"></a>第四步：找 native 真正需要什么</h2><p>继续看日志后发现，native 层会自己开 TCP 连接并发心跳：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs text">send HeartBeatRequest<br>heartBeatRequest<br>client Send msg: 9<br>GameReceive msg 9<br>heartBeatResponse<br></code></pre></td></tr></table></figure>
+
+<p><code>msg 9</code> 基本可以理解为心跳类消息。ready 时还会出现：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs text">readyok<br>client Send msg: 2<br>GameReceive msg 2<br>sPlayerReadyState1<br>sPlayerReadyState2<br></code></pre></td></tr></table></figure>
+
+<p>也就是说，选人界面之后已经不是快牙 SDK 在同步了，而是原游戏 native 的 <code>SocketClient</code> &#x2F; <code>SocketServer</code> 在工作。</p>
+<p>这一步排查出了两个关键事实：</p>
+<ol>
+<li>原 native 比赛同步没有完全坏。</li>
+<li>它需要 Java 层传入正确的玩家 IP 和玩家顺序。</li>
+</ol>
+<p>如果 Java 层传错，native 会向错误地址发心跳，最终表现成转圈、卡死或崩溃。</p>
+<h2 id="第五步：纠正玩家列表"><a href="#第五步：纠正玩家列表" class="headerlink" title="第五步：纠正玩家列表"></a>第五步：纠正玩家列表</h2><p>核心修改点在 <code>ZapyaGameCenter.getAllUsers()</code> 附近。</p>
+<p>原 native 层期待拿到类似快牙 SDK 的 <code>DmUserHandle</code> 列表。修复时没有去改 native，而是在 Java&#x2F;smali 层伪造这个列表：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs text">房主侧：<br>  本机是 HOST / ME<br>  加入者是 CLIENT / OTHER<br><br>加入侧：<br>  房主是 HOST / OTHER<br>  本机是 CLIENT / ME<br></code></pre></td></tr></table></figure>
+
+<p>同时 <code>LanGameCenter.getPlayers()</code> 需要返回 <code>PlayerInfo</code>：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">playerID<br>playerName<br>playerIP<br></code></pre></td></tr></table></figure>
+
+<p>这里的 <code>playerIP</code> 很关键。它不是 UI 展示字段，而是 native 后续建 TCP 连接的依据。</p>
+<p>曾经有一个中间版本里，房主端日志出现过：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">client Send msg: 9 to ip: 172.16.1.6<br></code></pre></td></tr></table></figure>
+
+<p>而 <code>172.16.1.6</code> 正是房主自己的 IP。这意味着房主把自己当成了对端。客户端侧也出现过向 <code>127.0.0.1</code> 发包的情况。</p>
+<p>这些日志说明：<br>问题不是“native 不会同步”，而是“native 被喂了错误的对端信息”。</p>
+<h2 id="第六步：模拟器环境的坑"><a href="#第六步：模拟器环境的坑" class="headerlink" title="第六步：模拟器环境的坑"></a>第六步：模拟器环境的坑</h2><p>这次测试用的是两台雷电模拟器。它们看起来在同一网段：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">emulator-5554: 172.16.1.6<br>emulator-5556: 172.16.1.5<br>gateway:       172.16.1.1<br></code></pre></td></tr></table></figure>
+
+<p>但实际测试时，模拟器之间的直连并不可靠。尤其是 ADB bridge 会制造一个很容易误导判断的环境：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs powershell">adb forward<br>adb reverse<br></code></pre></td></tr></table></figure>
+
+<p><code>adb reverse tcp:33221 tcp:33221</code> 一度让客户端能收到 host 的 native 心跳，但它也会占用客户端本地的 <code>33221</code> 端口，导致客户端自己的 native server 行为被改变。</p>
+<p>所以这里的排错原则是：</p>
+<ol>
+<li>lobby 阶段可以用 ADB bridge 先打通。</li>
+<li>native 比赛阶段要确认双方实际连接的 IP 和端口。</li>
+<li>不能只看“收到了心跳”，还要看是不是连到了正确的对端。</li>
+<li>模拟器通过了，不代表真实手机所有网络环境都通过。</li>
+</ol>
+<h2 id="第七步：最终可用版本"><a href="#第七步：最终可用版本" class="headerlink" title="第七步：最终可用版本"></a>第七步：最终可用版本</h2><p>最终可用版本里，流程变成：</p>
+<ol>
+<li>房主创建房间。</li>
+<li>客户端搜索到房间。</li>
+<li>客户端发起加入。</li>
+<li>房主收到加入，并触发双方进入选人。</li>
+<li><code>getAllUsers()</code> 返回正确的两人列表。</li>
+<li>native 初始化时读取到正确玩家。</li>
+<li>双方 ready 后进入比赛。</li>
+<li>原 native 同步逻辑负责比赛过程。</li>
+</ol>
+<p>双方进入后续流程：</p>
+<p><img src="https://fastly.jsdelivr.net/gh/KingPenguinMan/image-bed/img/football-lan-fix/host-after-join.png" srcset="/img/loading.gif" lazyload alt="房主端进入后续流程"></p>
+<p><img src="https://fastly.jsdelivr.net/gh/KingPenguinMan/image-bed/img/football-lan-fix/client-after-join.png" srcset="/img/loading.gif" lazyload alt="加入端进入后续流程"></p>
+<p>最终测试结果：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs text">房主创建房间：正常<br>客户端搜索房间：正常<br>客户端加入：正常<br>双方进入选人：正常<br>双方 ready：正常<br>进入比赛：正常<br>移动同步：正常<br>进球判定：正常<br>比分同步：正常<br>结算：正常<br>完整一局：未崩溃<br></code></pre></td></tr></table></figure>
+
+<h2 id="排错时间线"><a href="#排错时间线" class="headerlink" title="排错时间线"></a>排错时间线</h2><p>这次排错不是一次成功，而是逐层把问题剥开。</p>
+<p>第一阶段只关注“能不能看到房间”。<br>这一步最容易被 UI 欺骗。列表里能出现房间，并不代表加入链路通了。早期甚至出现过“不创建房间也能搜到一个 ADB 房间”的情况，这是因为测试入口为了方便调试写死了一个伪房间。它对验证 UI 有用，但不能证明真实 lobby 已经正常。</p>
+<p>第二阶段关注“房主能不能收到加入请求”。<br>这时引入了自建 TCP lobby。客户端点击加入后，不再依赖旧快牙 SDK，而是直接向房主发送加入消息。这个阶段解决后，房主端开始能进入后续流程。</p>
+<p>第三阶段关注“客户端为什么还在转圈”。<br>日志显示客户端其实已经收到过加入完成信号，但 UI 和 native 初始化的状态没有完全同步。这里补了更早的 join OK 回调，让客户端不要一直卡在 loading。</p>
+<p>第四阶段关注“为什么都进选人了还崩溃”。<br>这一步才真正接近核心。选人界面出现后，快牙 SDK 的作用已经很小，native 比赛同步开始接管。崩溃点在 native socket 附近，但根因仍然是 Java 层传入的玩家列表不正确。</p>
+<p>第五阶段关注“ready 消息是否同步”。<br>这一阶段看到双方都能收到心跳 <code>msg 9</code>，也能收到 ready 相关的 <code>msg 2</code>。这说明原游戏的同步协议没有死，剩下的问题是连接对象和玩家身份是否稳定。</p>
+<p>第六阶段完整打一局。<br>只有完整完成移动、进球、比分、结算，才能说明修复不是只把 UI 推过去了，而是真正把比赛同步跑通了。</p>
+<h2 id="具体修改方案"><a href="#具体修改方案" class="headerlink" title="具体修改方案"></a>具体修改方案</h2><p>修改方案可以拆成几个明确的点。</p>
+<h3 id="1-Manifest-和全屏"><a href="#1-Manifest-和全屏" class="headerlink" title="1. Manifest 和全屏"></a>1. Manifest 和全屏</h3><p>老 APK 在新系统上会提示 SDK 版本过低，同时显示区域不能铺满屏幕。这里主要改：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">AndroidManifest.xml<br>GameActivity.smali<br></code></pre></td></tr></table></figure>
+
+<p>目标是让系统不再用过时兼容模式运行它，并在 Activity 启动时进入横屏全屏&#x2F;沉浸式显示。</p>
+<h3 id="2-用-LanGameCenter-替代旧-SDK-外围"><a href="#2-用-LanGameCenter-替代旧-SDK-外围" class="headerlink" title="2. 用 LanGameCenter 替代旧 SDK 外围"></a>2. 用 LanGameCenter 替代旧 SDK 外围</h3><p>旧快牙 SDK 原本负责：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs text">创建热点/房间<br>广播房间<br>发现房间<br>加入房间<br>维护成员列表<br></code></pre></td></tr></table></figure>
+
+<p>修复后，这部分改成 <code>LanGameCenter</code> 自己维护：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs text">createRoom()<br>scanRooms()<br>joinRoom()<br>acceptClient()<br>getPlayers()<br></code></pre></td></tr></table></figure>
+
+<p>lobby 层只做一件事：把双方带到原游戏 native 能继续工作的状态。</p>
+<h3 id="3-伪造-DmUserHandle"><a href="#3-伪造-DmUserHandle" class="headerlink" title="3. 伪造 DmUserHandle"></a>3. 伪造 DmUserHandle</h3><p>native 层不认识新的 <code>LanGameCenter</code>，它仍然通过原来的 <code>ZapyaGameCenter.getAllUsers()</code> 取人。所以这里不能简单返回自定义对象，必须返回原来 SDK 形式的 <code>DmUserHandle</code>。</p>
+<p>逻辑上等价于：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs text">if host:<br>    return [me_as_host, remote_as_client]<br><br>if client:<br>    return [host_as_host, me_as_client]<br></code></pre></td></tr></table></figure>
+
+<p>重点不是名字，而是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">MEMBER_TYPE<br>MEMBER_ROLE<br>playerIP<br>playerID<br></code></pre></td></tr></table></figure>
+
+<p>这些字段会影响 native 判断谁是房主、谁是客户端、应该连哪个 IP。</p>
+<h3 id="4-保留-native-比赛通信"><a href="#4-保留-native-比赛通信" class="headerlink" title="4. 保留 native 比赛通信"></a>4. 保留 native 比赛通信</h3><p>没有去重写这些逻辑：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs text">SocketClient::CreateTCPSend<br>SocketServer::CreateTCPAccept<br>GameReceive<br>HeartBeatRequest<br>HeartBeatResponse<br>ready state<br>score result<br></code></pre></td></tr></table></figure>
+
+<p>因为日志已经证明它能工作。修复重点是让它拿到正确输入，而不是替换它。</p>
+<h3 id="5-模拟器桥接只作为测试手段"><a href="#5-模拟器桥接只作为测试手段" class="headerlink" title="5. 模拟器桥接只作为测试手段"></a>5. 模拟器桥接只作为测试手段</h3><p>在雷电模拟器里测试时，用过：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs powershell">adb <span class="hljs-literal">-s</span> emulator<span class="hljs-literal">-5554</span> forward tcp:<span class="hljs-number">19876</span> tcp:<span class="hljs-number">9876</span><br>adb <span class="hljs-literal">-s</span> emulator<span class="hljs-literal">-5556</span> reverse tcp:<span class="hljs-number">9876</span> tcp:<span class="hljs-number">19876</span><br></code></pre></td></tr></table></figure>
+
+<p>这只解决 lobby 测试，不应该被理解成最终真实手机方案。真实手机测试时，最好还是让两台手机处在同一路由器或同一热点下，再验证 UDP&#x2F;TCP 能否直连。</p>
+<h3 id="6-打包验证"><a href="#6-打包验证" class="headerlink" title="6. 打包验证"></a>6. 打包验证</h3><p>每次 smali 修改后，都按这个流程构建：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs powershell">apktool b .\apktool<span class="hljs-literal">-v2</span> <span class="hljs-literal">-o</span> .\football<span class="hljs-literal">-lan-v12-unsigned</span>.apk<br>jarsigner <span class="hljs-literal">-keystore</span> .\<span class="hljs-built_in">debug-lan</span>.keystore `<br>  <span class="hljs-literal">-storepass</span> android `<br>  <span class="hljs-literal">-keypass</span> android `<br>  .\football<span class="hljs-literal">-lan-v12</span>.apk androiddebugkey<br></code></pre></td></tr></table></figure>
+
+<p>然后安装到两台设备：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs powershell">adb <span class="hljs-literal">-s</span> emulator<span class="hljs-literal">-5554</span> install <span class="hljs-literal">-r</span> .\football<span class="hljs-literal">-lan-v12</span>.apk<br>adb <span class="hljs-literal">-s</span> emulator<span class="hljs-literal">-5556</span> install <span class="hljs-literal">-r</span> .\football<span class="hljs-literal">-lan-v12</span>.apk<br></code></pre></td></tr></table></figure>
+
+<p>测试时不只看能不能进房间，而是按固定清单检查：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs text">创建房间<br>搜索房间<br>点击加入<br>双方进入选人<br>双方 ready<br>进入比赛<br>移动同步<br>射门/进球判定<br>比分同步<br>结算<br>退出后再次创建<br></code></pre></td></tr></table></figure>
+
+<h2 id="兼容性修改"><a href="#兼容性修改" class="headerlink" title="兼容性修改"></a>兼容性修改</h2><p>除了联机本身，还做了两个现代 Android 兼容修补。</p>
+<p>第一是 Manifest 里的 SDK 配置，避免启动时一直提示 SDK 版本过低。</p>
+<p>第二是 Activity 全屏&#x2F;沉浸式显示，解决老游戏在新屏幕上不是全屏的问题。</p>
+<p>这些修改不影响网络协议，但能让游戏在现在的设备上更像一个正常应用。</p>
+<h2 id="这次修复到底改了什么"><a href="#这次修复到底改了什么" class="headerlink" title="这次修复到底改了什么"></a>这次修复到底改了什么</h2><p>可以把修改分成三类。</p>
+<p>第一类是兼容修复：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">AndroidManifest.xml<br>GameActivity.smali<br></code></pre></td></tr></table></figure>
+
+<p>用于处理 SDK 版本提示和全屏显示。</p>
+<p>第二类是联机外围替换：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">LanGameCenter<br>ZapyaGameCenter<br></code></pre></td></tr></table></figure>
+
+<p>用于替代旧快牙 SDK 的房间发现、创建、加入和玩家管理。</p>
+<p>第三类是调试辅助：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">ADB 测试房间<br>logcat 日志<br>端口转发<br>模拟器桥接<br></code></pre></td></tr></table></figure>
+
+<p>用于确认问题到底出在 lobby 阶段还是 native 比赛阶段。</p>
+<p>真正没有改的是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">libcocos2dcpp.so 里的比赛同步协议<br>角色移动、碰撞、射门、进球、结算逻辑<br></code></pre></td></tr></table></figure>
+
+<p>这也是为什么最后能保留原游戏手感。</p>
+<h2 id="复盘：几个关键误区"><a href="#复盘：几个关键误区" class="headerlink" title="复盘：几个关键误区"></a>复盘：几个关键误区</h2><p>第一个误区：看到加入转圈，就以为只是房间发现失败。<br>实际上房间发现只是第一层，后面还有玩家列表和 native 初始化。</p>
+<p>第二个误区：看到 native 崩溃，就以为必须改 so。<br>这次崩溃更像是 Java 层传错数据后，native 进入错误连接状态造成的连锁反应。</p>
+<p>第三个误区：看到两台模拟器 IP 在同一网段，就以为它们一定能互通。<br>模拟器网络、ADB forward、ADB reverse 都会改变真实连接路径。</p>
+<p>第四个误区：重新做一个现代版本会更简单。<br>对这种老游戏来说，素材可提取不等于玩法可复用。原生逻辑还能跑时，修外围往往更划算。</p>
+<h2 id="后续可以继续做什么"><a href="#后续可以继续做什么" class="headerlink" title="后续可以继续做什么"></a>后续可以继续做什么</h2><p>当前版本已经能完成一局联机，但还可以继续整理：</p>
+<ol>
+<li>把 ADB 测试房间和真实手机局域网逻辑分开。</li>
+<li>给真实手机增加更可靠的 UDP 广播或手动 IP 加入。</li>
+<li>清理旧快牙 SDK 残留。</li>
+<li>把 smali 修改整理成可重复构建脚本。</li>
+<li>给 APK 打一个明确的修复版版本号。</li>
+<li>在更多真机网络环境下测试，例如同路由器、手机热点、AP 隔离网络。</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这次修复最重要的结论是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">坏掉的是旧快牙 SDK 外围联机服务，<br>不是原游戏的比赛同步核心。<br></code></pre></td></tr></table></figure>
+
+<p>只要重新实现创建房间、搜索房间、加入房间和玩家列表，把 native 层需要的玩家信息喂对，十年前的《格斗足球》仍然可以完成局域网联机。</p>
+<p>最后的结果很简单：两台设备能创建、加入、选人、ready、比赛、进球、结算。对一个已经没人维护的老游戏来说，这比重写一个“看起来像”的版本更接近真正的修复。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/bug/" class="category-chain-item">bug</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Android/" class="print-no-link">#Android</a>
+      
+        <a href="/tags/APK/" class="print-no-link">#APK</a>
+      
+        <a href="/tags/Smali/" class="print-no-link">#Smali</a>
+      
+        <a href="/tags/%E5%B1%80%E5%9F%9F%E7%BD%91%E8%81%94%E6%9C%BA/" class="print-no-link">#局域网联机</a>
+      
+        <a href="/tags/%E9%80%86%E5%90%91%E8%B0%83%E8%AF%95/" class="print-no-link">#逆向调试</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>修复十年前快牙游戏《格斗足球》的局域网联机</div>
+      <div>https://128374.xyz/2026/07/09/repair-fight-football-lan-mode/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>KingPenguinMan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年7月9日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2026年7月14日</div>
+        </div>
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="NC - 非商业性使用">
+                    <i class="iconfont icon-cc-nc"></i>
+                  </span>
+                </a>
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="SA - 相同方式共享">
+                    <i class="iconfont icon-cc-sa"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/03/Thunderbird-Outlook-OAuth-IMAP-auth-failed/" title="Thunderbird 添加 Outlook 邮箱授权成功却登录失败的完整排查与修复">
+                        <span class="hidden-mobile">Thunderbird 添加 Outlook 邮箱授权成功却登录失败的完整排查与修复</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="waline"></div>
+  <script type="module">
+    Fluid.utils.loadComments('#waline', function() {
+      Fluid.utils.createCssLink('https://lib.baomitu.com/waline/3.6.0/waline.css')
+      import('https://lib.baomitu.com/waline/3.6.0/waline.js').then(({ init }) => {
+        var options = Object.assign(
+          {"serverURL":"https://waline-comment-8t9g.vercel.app","path":"window.location.pathname","meta":["nick","mail","link"],"requiredMeta":["nick"],"lang":"zh-CN","emoji":["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],"dark":"html[data-user-color-scheme=\"dark\"]","wordLimit":0,"pageSize":10},
+          {
+            el: '#waline',
+            path: window.location.pathname
+          }
+        )
+        init(options);
+        Fluid.utils.waitElementVisible('#waline .vcontent', () => {
+          var imgSelector = '#waline .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; letter-spacing: 0.5px;"> <a href="https://github.com/KingPenguinMan" target="_blank" rel="nofollow noopener" style="text-decoration: none;"> <span style="font-weight: 600;">KingPenguinMan</span> </a>
+<span style="margin: 0 8px; position: relative; bottom: 1px;"> <i class="iconfont icon-love" style="color: #ff5252; font-size: 14px; animation: heartBeat 1.5s ease-in-out infinite;"></i> </span>
+<a href="https://github.com/KingPenguinMan" target="_blank" rel="nofollow noopener" style="text-decoration: none;"> <span style="font-weight: 600; background: linear-gradient(to right, #00d4ff, #0080ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Excalibur</span> </a>
+<div style="margin-top: 8px; font-size: 0.8rem; opacity: 0.6;"> <span id="runtime_span">Since 2026</span> <span style="margin: 0 5px; color: #00ff88; animation: blink 1.5s infinite;">●</span> <span>Secure Connection Established</span> </div> </div>
+<style> @keyframes heartBeat { 0% { transform: scale(1); } 14% { transform: scale(1.1); } 28% { transform: scale(1); } 42% { transform: scale(1.1); } 70% { transform: scale(1); } } @keyframes blink { 0% { opacity: 0.2; } 50% { opacity: 1; } 100% { opacity: 0.2; } } </style> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    function isExpandAllEnabled() {
+      return CONFIG.toc && CONFIG.toc.expand_all === true;
+    }
+    function expandAllToc() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .tocbot-is-collapsed').removeClass('tocbot-is-collapsed');
+    }
+    function updateTocToggle($li, $childList) {
+      var $toggle = $li.children('.toc-toggle');
+      if ($toggle.length === 0) { return; }
+      var collapsed = $childList.hasClass('tocbot-is-collapsed');
+      $toggle
+        .toggleClass('toc-toggle-collapsed', collapsed)
+        .toggleClass('toc-toggle-expanded', !collapsed);
+    }
+    function bindTocToggle() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .toc-list-item').each(function() {
+        var $li = jQuery(this);
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) {
+          if ($li.children('.toc-toggle').length === 0) {
+            $li.prepend('<span class="toc-toggle toc-toggle-placeholder" aria-hidden="true">›</span>');
+          }
+          return;
+        }
+
+        if ($li.children('.toc-toggle').length === 0) {
+          $li.prepend('<span class="toc-toggle toc-toggle-expanded" aria-hidden="true">›</span>');
+        }
+        updateTocToggle($li, $childList);
+      });
+      jQuery('#toc-body').off('click.tocToggle').on('click.tocToggle', '.toc-toggle', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var $li = jQuery(this).parent('.toc-list-item');
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) { return; }
+        $childList.toggleClass('tocbot-is-collapsed');
+        updateTocToggle($li, $childList);
+      });
+      if (!window.__tocToggleObserver) {
+        window.__tocToggleObserver = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type !== 'attributes' || mutation.attributeName !== 'class') { return; }
+            var $list = jQuery(mutation.target);
+            var $li = $list.parent('.toc-list-item');
+            if ($li.length === 0) { return; }
+            updateTocToggle($li, $list);
+          });
+        });
+        jQuery('#toc-body ol').each(function() {
+          window.__tocToggleObserver.observe(this, { attributes: true });
+        });
+      }
+    }
+    var tocConfig = Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc);
+    if (isExpandAllEnabled()) {
+      tocConfig.collapseDepth = 6;
+    }
+    window.tocbot.init(tocConfig);
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+    expandAllToc();
+    bindTocToggle();
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+        expandAllToc();
+        bindTocToggle();
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/openkounter.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+  
+<script src="/js/custom.js"></script>
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
