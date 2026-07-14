@@ -105,7 +105,7 @@ theme: fluid
 deploy:
   type: git
   repository: https://github.com/KingPenguinMan/penguin.github.io.git
-  branch: main
+  branch: gh-pages
 
 
 search:
