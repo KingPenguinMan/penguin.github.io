@@ -14,7 +14,7 @@ async function send(text, reply_markup) {
     body: JSON.stringify({ chat_id: chatId, text, ...(reply_markup && { reply_markup: { inline_keyboard: reply_markup.inline_keyboard.map(row => row.map(button => ({ ...button, callback_data: `a${accountSlot}:${button.callback_data}` }))) } }) }) });
   if (!response.ok) throw new Error(`Telegram delivery failed: ${response.status}`);
 }
-const prefix = `小黑盒 · 账号 ${accountSlot}`;
+const prefix = '小黑盒';
 if (!ok || !payload && ['status', 'activities', 'activity', 'activity_join'].includes(command)) {
   await send(`${prefix} · ${command === 'activity_join' ? '参与活动' : '操作'}失败\n${log.trim().split(/\r?\n/).at(-1) || '未取得执行结果，请稍后重试。'}`);
   process.exit(0);

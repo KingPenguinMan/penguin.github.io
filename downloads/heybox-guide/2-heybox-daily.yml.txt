@@ -21,42 +21,16 @@ concurrency:
 jobs:
   daily:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      max-parallel: 1
-      matrix:
-        account: ['1', '2', '3', '4', '5']
     env:
       TASK_COMMAND: ${{ (github.event.schedule == '15 12 * * *' || inputs.sign_only) && 'sign-only' || 'run' }}
-      ACCOUNT_SLOT: ${{ matrix.account }}
-      CONFIG_1: ${{ secrets.HEYBOX_CONFIG_JSON }}
-      CONFIG_2: ${{ secrets.HEYBOX_CONFIG_2 }}
-      CONFIG_3: ${{ secrets.HEYBOX_CONFIG_3 }}
-      CONFIG_4: ${{ secrets.HEYBOX_CONFIG_4 }}
-      CONFIG_5: ${{ secrets.HEYBOX_CONFIG_5 }}
+      HEYBOX_CONFIG_JSON: ${{ secrets.HEYBOX_CONFIG_JSON }}
     steps:
-      - name: Check account configuration
-        id: configured
-        shell: bash
-        run: |
-          case "$ACCOUNT_SLOT" in
-            1) config="$CONFIG_1" ;;
-            2) config="$CONFIG_2" ;;
-            3) config="$CONFIG_3" ;;
-            4) config="$CONFIG_4" ;;
-            5) config="$CONFIG_5" ;;
-          esac
-          if [[ -n "$config" ]]; then echo 'value=true' >> "$GITHUB_OUTPUT"; else echo 'value=false' >> "$GITHUB_OUTPUT"; fi
-
       - uses: actions/checkout@v4
-        if: steps.configured.outputs.value == 'true'
 
       - name: Build task image
-        if: steps.configured.outputs.value == 'true'
         run: docker compose build heybox
 
       - name: Run daily tasks
-        if: steps.configured.outputs.value == 'true'
         id: task
         continue-on-error: true
         shell: bash
@@ -64,18 +38,11 @@ jobs:
           umask 077
           mkdir -p private state
           trap 'rm -f private/config.json' EXIT
-          case "$ACCOUNT_SLOT" in
-            1) HEYBOX_CONFIG_JSON="$CONFIG_1" ;;
-            2) HEYBOX_CONFIG_JSON="$CONFIG_2" ;;
-            3) HEYBOX_CONFIG_JSON="$CONFIG_3" ;;
-            4) HEYBOX_CONFIG_JSON="$CONFIG_4" ;;
-            5) HEYBOX_CONFIG_JSON="$CONFIG_5" ;;
-          esac
           printf '%s' "$HEYBOX_CONFIG_JSON" > private/config.json
           docker compose run --rm -T heybox "$TASK_COMMAND" | tee "$RUNNER_TEMP/heybox-result.log"
 
       - name: Notify Telegram
-        if: ${{ !cancelled() && steps.configured.outputs.value == 'true' }}
+        if: ${{ !cancelled() }}
         shell: bash
         env:
           TASK_STATUS: ${{ steps.task.outcome == 'success' && 'success' || 'failure' }}
@@ -107,7 +74,7 @@ jobs:
           if [[ -f "$log" ]]; then details=$(sed -n 's/^通知明细 //p' "$log"); fi
           if [[ -z "$details" ]]; then details=$'分享帖子、游戏、游戏评价：未确认\nH 币（盒币）：未取得余额'; fi
           if [[ "$TASK_COMMAND" == sign-only ]]; then label="晚间兜底"; else label="每日任务"; fi
-          message="账号 ${ACCOUNT_SLOT} · $label · $message"$'\n'"$details"
+          message="$label · $message"$'\n'"$details"
           text=$(printf '小黑盒\n%s' "$message")
           if ! curl --silent --fail --max-time 20 \
             --data-urlencode "chat_id=$CHAT_ID" --data-urlencode "text=$text" \
@@ -116,7 +83,7 @@ jobs:
             exit 1
           fi
 
-      - name: Mark account run failed
-        if: ${{ steps.configured.outputs.value == 'true' && steps.task.outcome != 'success' }}
+      - name: Mark run failed
+        if: ${{ steps.task.outcome != 'success' }}
         run: exit 1
 
