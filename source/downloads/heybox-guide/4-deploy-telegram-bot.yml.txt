@@ -1,0 +1,60 @@
+name: Deploy Telegram Bot
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - telegram-worker/**
+      - .github/workflows/deploy-telegram-bot.yml
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy Worker
+        working-directory: telegram-worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx --yes wrangler@4.153.0 deploy
+      - name: Configure Worker secrets
+        working-directory: telegram-worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+          TG_WEBHOOK_SECRET: ${{ secrets.TG_WEBHOOK_SECRET }}
+          BOT_GITHUB_TOKEN: ${{ secrets.BOT_GITHUB_TOKEN }}
+        run: |
+          test -n "$TG_BOT_TOKEN" -a -n "$TG_CHAT_ID" -a -n "$TG_WEBHOOK_SECRET" -a -n "$BOT_GITHUB_TOKEN"
+          jq -n '{TG_BOT_TOKEN:env.TG_BOT_TOKEN,TG_CHAT_ID:env.TG_CHAT_ID,TG_WEBHOOK_SECRET:env.TG_WEBHOOK_SECRET,BOT_GITHUB_TOKEN:env.BOT_GITHUB_TOKEN}' \
+            | npx --yes wrangler@4.153.0 secret bulk
+      - name: Register Telegram webhook
+        env:
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_WEBHOOK_SECRET: ${{ secrets.TG_WEBHOOK_SECRET }}
+          WORKER_URL: ${{ vars.TELEGRAM_WORKER_URL }}
+        run: |
+          test -n "$WORKER_URL"
+          curl --silent --show-error --fail \
+            --data-urlencode "url=${WORKER_URL%/}/telegram" \
+            --data-urlencode "secret_token=$TG_WEBHOOK_SECRET" \
+            --data-urlencode 'allowed_updates=["message","callback_query"]' \
+            --data-urlencode 'drop_pending_updates=true' \
+            "https://api.telegram.org/bot$TG_BOT_TOKEN/setWebhook" \
+            | jq -e '.ok == true'
+      - name: Register Telegram command menu
+        env:
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+        run: |
+          curl --silent --show-error --fail \
+            --data-urlencode 'commands=[{"command":"start","description":"打开任务菜单"},{"command":"accounts","description":"切换要管理的账号"},{"command":"status","description":"查看账号与签到状态"},{"command":"sign","description":"手动检查和补签"},{"command":"run","description":"执行每日任务"},{"command":"activities","description":"查看抽奖活动"}]' \
+            "https://api.telegram.org/bot$TG_BOT_TOKEN/setMyCommands" \
+            | jq -e '.ok == true'
+

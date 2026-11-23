@@ -1,0 +1,15 @@
+param([ValidateRange(2,5)][int]$Account = 2)
+$ErrorActionPreference = 'Stop'
+Set-Location (Split-Path $PSScriptRoot -Parent)
+$env:HEYBOX_CONFIG = Join-Path (Get-Location) "private/account-$Account.json"
+if (Test-Path -LiteralPath $env:HEYBOX_CONFIG) {
+  throw "Account $Account already has a local configuration. Use another empty slot."
+}
+Write-Host "Logging in account $Account. Enter the phone number and SMS code locally."
+node dist/cli.js login
+if ($LASTEXITCODE -eq 0) {
+  Write-Host "Saved: $env:HEYBOX_CONFIG"
+  Write-Host "Add this JSON to GitHub Actions secret HEYBOX_CONFIG_$Account."
+}
+Read-Host 'Press Enter to close'
+

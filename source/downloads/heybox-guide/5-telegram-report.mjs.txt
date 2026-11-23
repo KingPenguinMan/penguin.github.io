@@ -1,0 +1,42 @@
+const token = process.env.TG_BOT_TOKEN;
+const chatId = process.env.TG_CHAT_ID;
+const command = process.env.BOT_ACTION;
+const accountSlot = process.env.BOT_ACCOUNT || '1';
+const ok = process.env.TASK_STATUS === '0';
+const log = await (await import('node:fs/promises')).readFile(process.env.RESULT_LOG, 'utf8').catch(() => '');
+const line = log.split(/\r?\n/).find(value => value.startsWith('BOT_JSON '));
+let payload;
+try { payload = line ? JSON.parse(line.slice(9)) : undefined; } catch { /* handled below */ }
+
+const statusName = { available: '可以参与', follow_required: '需要关注活动账号', blocked: '暂不可参与', joined: '已参与', completed: '已完成', ended: '已结束' };
+async function send(text, reply_markup) {
+  const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, { method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ chat_id: chatId, text, ...(reply_markup && { reply_markup: { inline_keyboard: reply_markup.inline_keyboard.map(row => row.map(button => ({ ...button, callback_data: `a${accountSlot}:${button.callback_data}` }))) } }) }) });
+  if (!response.ok) throw new Error(`Telegram delivery failed: ${response.status}`);
+}
+const prefix = `小黑盒 · 账号 ${accountSlot}`;
+if (!ok || !payload && ['status', 'activities', 'activity', 'activity_join'].includes(command)) {
+  await send(`${prefix} · ${command === 'activity_join' ? '参与活动' : '操作'}失败\n${log.trim().split(/\r?\n/).at(-1) || '未取得执行结果，请稍后重试。'}`);
+  process.exit(0);
+}
+if (payload?.kind === 'status') {
+  const taskName = { '1': '分享帖子', '19': '分享游戏', '31': '分享游戏评价' };
+  const tasks = payload.tasks.map(item => `${taskName[item.id] ?? item.title ?? item.id}：${item.state === 'finish' ? '已完成' : '未完成'}`).join('\n');
+  await send(`${prefix}${payload.nickname ? ` · ${payload.nickname}` : ''}\n盒友 ID：${payload.account}\n签到：${payload.signed ? '今日已完成' : '今日未完成'}\n${tasks}\n经验：${payload.exp}\nH 币（盒币）：${payload.coin}`);
+} else if (payload?.kind === 'activities') {
+  const active = payload.activities.filter(item => !['ended', 'completed'].includes(item.status)).slice(0, 20);
+  const rows = active.map(item => [{ text: `${item.joined ? '✅' : '🎁'} ${item.name}`.slice(0, 50), callback_data: `activity:${item.id}` }]);
+  await send(active.length ? `${prefix}\n找到 ${active.length} 个可查看的抽奖活动，点击查看详情：` : `${prefix}\n目前没有可参与的抽奖活动。`, rows.length ? { inline_keyboard: rows } : undefined);
+} else if (payload?.kind === 'activity') {
+  const item = payload.activity;
+  const follows = item.followAccounts?.length ? `\n参与时将关注：${item.followAccounts.map(value => value.name).join('、')}` : '';
+  const details = `${prefix}\n抽奖活动 · ${item.name}\n状态：${statusName[item.status] ?? item.status}\n奖品数量：${item.prizeCount ?? '未提供'}\n截止时间：${item.endTime ?? '未提供'}\n我的抽奖券：${item.tickets ?? '未提供'}${follows}${item.reason ? `\n说明：${item.reason}` : ''}`;
+  const keyboard = payload.confirmation ? { inline_keyboard: [[{ text: item.followAccounts?.length ? '确认关注并参与' : '确认参与', callback_data: `join:${item.id}:${payload.confirmation}` }], [{ text: '返回活动列表', callback_data: 'activities' }]] } : undefined;
+  await send(details, keyboard);
+} else if (payload?.kind === 'activity_joined') {
+  await send(`${prefix}\n抽奖活动 · ${payload.activity.name}\n参与成功。\n当前抽奖券：${payload.activity.tickets ?? '请稍后在小黑盒查看'}`);
+} else if (command === 'sign' || command === 'run') {
+  const details = log.split(/\r?\n/).filter(value => value.startsWith('通知明细 ')).map(value => value.slice(5)).join('\n');
+  await send(`${prefix} · ${command === 'sign' ? '手动签到' : '每日任务'}${ok ? '成功' : '失败'}${details ? `\n${details}` : ''}`);
+}
+
