@@ -2,7 +2,8 @@
 title: 小黑盒每日签到
 date: 2026-11-23 12:00:00
 index_img: /images/heybox-guide/actions-flow.svg
-banner_img: /images/heybox-guide/actions-flow.svg
+banner_img: /images/heybox-guide/header.svg
+banner_img_height: 38
 tags:
   - GitHub Actions
   - 小黑盒
@@ -13,7 +14,7 @@ categories:
 excerpt: 用 GitHub Actions 自动完成小黑盒每日签到和分享任务，配置晚间补签；需要远程操作时，再选配 Telegram Bot 与 Cloudflare Worker。
 ---
 
-用 **GitHub Actions** 运行小黑盒每日任务：电脑只在首次登录时使用，之后由工作流按时执行。先把自动签到跑通；需要消息通知、手动补签或切换账号时，再接入后面的 Telegram Bot。
+用 **GitHub Actions** 运行小黑盒每日任务：电脑只在首次登录时使用，之后由工作流按时执行。先把自动签到跑通；需要消息通知、手动补签时，再接入后面的 Telegram Bot。
 
 ![从本地登录到 GitHub Actions 每日执行的流程](/images/heybox-guide/actions-flow.svg)
 
@@ -30,7 +31,7 @@ excerpt: 用 GitHub Actions 自动完成小黑盒每日签到和分享任务，�
 
 **还想在聊天中操作：** 再完成第四节，接入 Cloudflare Worker。可以查看状态、补签、执行每日任务和查看抽奖活动。
 
-不需要购买 VPS 或域名，使用平台免费额度即可起步。多账号和频繁构建会增加 Actions 用量，请在平台用量页面检查额度。本文按 2026-11-23 的实现整理；接口、依赖和控制台界面变化时，需要对照原项目调整。
+不需要购买 VPS 或域名，使用平台免费额度即可起步。频繁构建会增加 Actions 用量，请在平台用量页面检查额度。本文按 2026-11-23 的实现整理；接口、依赖和控制台界面变化时，需要对照原项目调整。
 
 ## 二、GitHub Actions 每日签到
 
@@ -80,7 +81,7 @@ node dist/cli.js login
 
 登录成功生成 `private/config.json`。验证码可在同一会话内最多提交 3 次，回车取消；程序不会自动重发短信。遇到频率限制、过期或人机验证按报错处理，简单本地入口不保证完成所有人机验证。
 
-如果当前窗口设置过 `HEYBOX_CONFIG`，保存路径会受影响。主账号登录前可在当前 PowerShell 执行：
+如果当前窗口设置过 `HEYBOX_CONFIG`，保存路径会受影响。自己的账号登录前可在当前 PowerShell 执行：
 
 ```powershell
 Remove-Item Env:HEYBOX_CONFIG -ErrorAction SilentlyContinue
@@ -119,9 +120,8 @@ docker compose run --rm heybox check
 1. 分支选择 `main`。
 2. 第一次可以不勾选“只检查和补签”，测试完整每日任务。
 3. 确认运行，打开最新记录。
-4. 查看账号 1 的构建和任务步骤是否成功，再去小黑盒核对实际签到状态。
+4. 查看任务的构建和任务步骤是否成功，再去小黑盒核对实际签到状态。
 
-当前工作流预留 5 个槽位，未配置的账号会跳过主要步骤。只配了账号 1 时，不需要为其他槽位填写任何东西。
 
 **做到这里，每日自动签到就已配置完成。** 后面的 Telegram Bot 是可选项。
 
@@ -138,13 +138,13 @@ schedule:
 
 代码通过 `15 12 * * *` 这个字符串识别晚间任务。修改晚间 cron 时必须同步修改 `TASK_COMMAND` 对应判断，否则可能执行完整每日任务。
 
-5 个槽位当前按矩阵顺序、最多 1 个并行执行。空槽位跳过主要步骤，后面的账号可能更晚通知。晚间已签到时静默，补签成功或检查失败才通知；手动 `/sign` 会报告操作结果。
+晚间已签到时静默，补签成功或检查失败才通知；手动 `/sign` 会报告操作结果。
 
-通知里“部署实践中 H 币变化”是此次任务前后差值，不是当天全部来源的累计收入。查询余额不能代表所有奖励已经到账。
+通知里“本次 H 币变化”是此次任务前后差值，不是当天全部来源的累计收入。查询余额不能代表所有奖励已经到账。
 
 GitHub 调度可能延迟，高负载时甚至丢弃任务，计划 09:15 不保证准点到达。晚间兜底提高恢复机会，仍不能保证不断签。[官方调度说明](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule)。公开库 60 天没有活动可能自动停用定时工作流，需检查启用状态。[官方停用说明](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/disable-and-enable-workflows)。
 
-担心断签时先 `/status`，未签再 `/sign`。也可 Actions → Heybox Daily → Run workflow 勾选只检查和补签；这个工作流处理全部已配置账号，机器人指令处理单账号。
+担心断签时先 `/status`，未签再 `/sign`。也可 Actions → Heybox Daily → Run workflow 勾选只检查和补签；也可以直接从 GitHub 手动运行，不依赖机器人。
 
 ## 三、可选：用 Telegram 接收结果
 
@@ -221,9 +221,8 @@ PowerShell 运行：
 | Secret 名称 | 填什么 |
 | --- | --- |
 | `HEYBOX_CONFIG_JSON` | 主账号完整配置 JSON |
-| `HEYBOX_CONFIG_2`～`HEYBOX_CONFIG_5` | 可选的其他账号独立 JSON |
 | `TG_BOT_TOKEN` | BotFather 签发的机器人 Token |
-| `TG_CHAT_ID` | 管理员与机器人私聊的数字 chat ID |
+| `TG_CHAT_ID` | 自己与机器人私聊的数字 chat ID |
 | `TG_WEBHOOK_SECRET` | 自己生成的随机密钥 |
 | `BOT_GITHUB_TOKEN` | 只授权目标仓库 Actions 读写的 GitHub PAT |
 | `CLOUDFLARE_API_TOKEN` | Cloudflare Worker 部署令牌 |
@@ -359,7 +358,7 @@ GitHub 仓库 Secrets 中保存：`CLOUDFLARE_API_TOKEN` 填完整 Token，`CLOU
 #### 验收顺序
 
 1. 私聊自己的机器人发送 `/start`，看到菜单。
-2. `/accounts` 选择账号 1，再 `/status`。
+2. 发送 `/status`，核对自己的账号。
 3. 等待 GitHub 构建和执行，核对返回的盒友 ID、签到和盒币状态。
 4. Actions 检查对应 Telegram Command 是否成功。
 5. `/activities` 获取活动，只查看不会参与。
@@ -372,54 +371,18 @@ GitHub 仓库 Secrets 中保存：`CLOUDFLARE_API_TOKEN` 填完整 Token，`CLOU
 | 命令 | 行为 |
 | --- | --- |
 | `/start` | 打开当前账号操作菜单 |
-| `/accounts` | 切换当前管理账号 |
 | `/status` | 查询签到、分享、经验、H 币和盒友 ID |
 | `/sign` | 检查并补签 |
 | `/run` | 执行每日任务 |
 | `/activities` | 获取抽奖活动列表 |
 
-普通命令使用当前账号；旧消息的操作按钮绑定消息生成时的账号，切换后仍操作原账号。建议切换后重新 `/start` 使用新菜单。
+所有操作使用保存在 `HEYBOX_CONFIG_JSON` 中的个人账号。
 
-抽奖依次点击“抽奖活动 → 某活动详情 → 确认参与”。需要关注时详情会显示要求，确认按钮为“确认关注并参与”。条件变化需重新查看确认。确认凭证也绑定账号，不能跨账号复用。被限制、已结束或不满足前置条件的活动可能无法执行。
+抽奖依次点击“抽奖活动 → 某活动详情 → 确认参与”。需要关注时详情会显示要求，确认按钮为“确认关注并参与”。条件变化需重新查看确认。被限制、已结束或不满足前置条件的活动可能无法执行。
 
 没有每日自动批量抽奖。参与成功不代表中奖，资格和奖品由小黑盒决定。
 
-## 五、可选：由管理员管理多个账号
-
-
-由管理员取得朋友授权后在本地登录，分别存储。最多 5 个槽位：
-
-| 槽位 | 本地文件 | GitHub Secret |
-| --- | --- | --- |
-| 1 | `private/config.json` | `HEYBOX_CONFIG_JSON` |
-| 2 | `private/account-2.json` | `HEYBOX_CONFIG_2` |
-| 3 | `private/account-3.json` | `HEYBOX_CONFIG_3` |
-| 4 | `private/account-4.json` | `HEYBOX_CONFIG_4` |
-| 5 | `private/account-5.json` | `HEYBOX_CONFIG_5` |
-
-完成本地依赖安装、构建后，在仓库 PowerShell 运行：
-
-```powershell
-.\scripts\login-account.ps1 -Account 2
-```
-
-输入朋友手机号和验证码。成功后生成独立的 `private/account-2.json`。脚本检测到该文件已存在会停止，避免误覆盖。
-
-若系统阻止 PowerShell 脚本，可直接在当前窗口指定文件并登录，不必更改全局安全设置：
-
-```powershell
-$env:HEYBOX_CONFIG = Join-Path (Get-Location) 'private/account-2.json'
-node dist/cli.js login
-Remove-Item Env:HEYBOX_CONFIG -ErrorAction SilentlyContinue
-```
-
-直接命令成功后会更新指定文件，先核对已有文件是否属于正确账号。
-
-打开新 JSON，完整复制到 GitHub 新 Secret `HEYBOX_CONFIG_2`。不要把它存到主账号的 `HEYBOX_CONFIG_JSON`。然后机器人 `/accounts` 选账号 2，`/status` 核对盒友 ID。账号 3～5 同理替换数字。
-
-保存后自动加入下一次定时执行，无需部署 Worker。不要把同一账号重复配置到多个槽位。当前菜单总显示 5 个槽位，未配置的槽位操作时提示缺配置，不会回退使用主账号；尚无自动显示所有账号昵称的功能。
-
-## 六、附件、排错与维护
+## 五、附件、排错与维护
 
 <details>
 <summary><strong>配套扩展下载与文件路径</strong></summary>
@@ -440,7 +403,6 @@ cd heybox-daily
 | [.github/workflows/telegram-command.yml](/downloads/heybox-guide/3-telegram-command.yml.txt) | `.github/workflows/telegram-command.yml` |
 | [.github/workflows/deploy-telegram-bot.yml](/downloads/heybox-guide/4-deploy-telegram-bot.yml.txt) | `.github/workflows/deploy-telegram-bot.yml` |
 | [scripts/telegram-report.mjs](/downloads/heybox-guide/5-telegram-report.mjs.txt) | `scripts/telegram-report.mjs` |
-| [scripts/login-account.ps1](/downloads/heybox-guide/6-login-account.ps1.txt) | `scripts/login-account.ps1` |
 | [telegram-worker/src/worker.js](/downloads/heybox-guide/7-worker.js.txt) | `telegram-worker/src/worker.js` |
 | [telegram-worker/wrangler.jsonc](/downloads/heybox-guide/8-wrangler.jsonc.txt) | `telegram-worker/wrangler.jsonc` |
 | [原项目 MIT 许可证副本](/downloads/heybox-guide/LICENSE.txt) | 保留项目原有 LICENSE，附件仅供阅读 |
@@ -484,11 +446,11 @@ cd heybox-daily
 
 先检查 UTC 时差：北京时间 04:00 是前一天 UTC 20:00，对应 `0 20 * * *`。再看默认分支、工作流启用、Actions 队列与额度。
 
-从 Actions 创建时间、构建和执行日志区分调度延迟与任务耗时。Telegram 到达时间不能直接证明 cron 配错，多账号顺序也会延后消息。
+从 Actions 创建时间、构建和执行日志区分调度延迟与任务耗时。Telegram 到达时间不能直接证明 cron 配错。
 
 #### 缺配置、登录失效、人机验证
 
-核对槽位 Secret 名称和完整 JSON。登录失效需要本地重新登录并更新同槽位 Secret；不要覆盖其他账号。短信限制不要反复重发；设备令牌 SDK 变更或验证码要求可能需要进一步维护，不能通过乱改版本号解决。
+核对 `HEYBOX_CONFIG_JSON` 名称和完整 JSON。登录失效需要本地重新登录并更新这个 Secret。短信限制不要反复重发；设备令牌 SDK 变更或验证码要求可能需要进一步维护，不能通过乱改版本号解决。
 
 #### CI 红叉、每次收到失败邮件
 
@@ -520,24 +482,23 @@ pnpm build
 
 | 要做什么 | 操作 |
 | --- | --- |
-| 停用朋友账号 | 删除对应配置 Secret；运行中的任务需另外在 Actions 取消 |
 | 暂停全部定时签到 | Actions → Heybox Daily → 菜单 → Disable workflow |
 | 同时暂停机器人执行 | 再停用 Telegram Command |
-| 更新小黑盒配置 | 更新该槽位 Secret，下一次执行使用 |
+| 更新小黑盒配置 | 更新 HEYBOX_CONFIG_JSON，下一次执行使用 |
 | 更新 Bot Token / Chat ID / PAT / webhook 密钥 | 更新 Secret 后运行 Deploy Telegram Bot |
 | 更新 Cloudflare Token | 更新 Secret，下次部署使用 |
 | 改 Worker 地址 | 更新 TELEGRAM_WORKER_URL，再部署注册 webhook |
-| 改 KV | 更新 Wrangler 配置并部署，账号选择状态可能重置 |
+| 改 KV | 更新 Wrangler 配置并部署，机器人状态可能重置 |
 
-Secret 删除不会撤回已读取凭证的在途任务。菜单仍显示空槽位。同一个 Bot 不要被多套 webhook 服务竞争使用，轮换 webhook 密钥后旧活动确认可能失效，重新查看活动即可。
+Secret 删除不会撤回已读取凭证的在途任务。同一个 Bot 不要被多套 webhook 服务竞争使用，轮换 webhook 密钥后旧活动确认可能失效，重新查看活动即可。
 
 </details>
 
 ### 使用边界
 
-本文方案由一个 Telegram 管理员统一管理，首次登录仍在本地完成。原作者网站的托管账号与自己的 GitHub 配置是不同系统，登录原作者网站不会自动为自己的仓库保存凭证。
+本文只用于个人账号，首次登录仍在本地完成。原作者网站的托管账号与自己的 GitHub 配置是不同系统，登录原作者网站不会自动为自己的仓库保存凭证。
 
-已验证的范围包括 Worker 部署、命令注册、主账号的线上只读查询，以及按钮账号隔离的模拟测试。其他账号需要各自登录并核对盒友 ID。原网站集成测试曾出现独立失败，不能将机器人部署成功视为整个项目所有测试通过。
+已验证的范围包括 Worker 部署、命令注册、主账号的线上只读查询，。原网站集成测试曾出现独立失败，不能将机器人部署成功视为整个项目所有测试通过。
 
 没有自动批量参加全部抽奖，也不能保证永久不断签。参与、关注及奖励以小黑盒实际状态为准。
 
