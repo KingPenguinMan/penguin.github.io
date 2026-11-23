@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "heybox-telegram-bot",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-11-22",
+  "workers_dev": true,
+  "vars": {
+    "GITHUB_OWNER": "YOUR_GITHUB_OWNER",
+    "GITHUB_REPO": "YOUR_REPOSITORY"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "BOT_STATE",
+      "id": "YOUR_KV_NAMESPACE_ID"
+    }
+  ]
+}
+

@@ -1,0 +1,89 @@
+name: Telegram Command
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        required: true
+        type: choice
+        options: [status, sign, run, activities, activity, activity_join]
+      activity_id:
+        required: false
+        type: string
+      confirmation:
+        required: false
+        type: string
+      account:
+        description: '账号槽位（1 至 5）'
+        required: false
+        default: '1'
+        type: choice
+        options: ['1', '2', '3', '4', '5']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: heybox-telegram-command
+  cancel-in-progress: false
+
+jobs:
+  command:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build task image
+        run: docker compose build heybox
+      - name: Run command
+        id: task
+        continue-on-error: true
+        shell: bash
+        env:
+          CONFIG_1: ${{ secrets.HEYBOX_CONFIG_JSON }}
+          CONFIG_2: ${{ secrets.HEYBOX_CONFIG_2 }}
+          CONFIG_3: ${{ secrets.HEYBOX_CONFIG_3 }}
+          CONFIG_4: ${{ secrets.HEYBOX_CONFIG_4 }}
+          CONFIG_5: ${{ secrets.HEYBOX_CONFIG_5 }}
+          TG_CONFIRM_SECRET: ${{ secrets.TG_WEBHOOK_SECRET }}
+          BOT_ACTION: ${{ inputs.action }}
+          BOT_ACCOUNT: ${{ inputs.account }}
+          ACTIVITY_ID: ${{ inputs.activity_id }}
+          CONFIRMATION: ${{ inputs.confirmation }}
+        run: |
+          umask 077
+          mkdir -p private state
+          trap 'rm -f private/config.json' EXIT
+          case "$BOT_ACCOUNT" in
+            1) HEYBOX_CONFIG_JSON="$CONFIG_1" ;;
+            2) HEYBOX_CONFIG_JSON="$CONFIG_2" ;;
+            3) HEYBOX_CONFIG_JSON="$CONFIG_3" ;;
+            4) HEYBOX_CONFIG_JSON="$CONFIG_4" ;;
+            5) HEYBOX_CONFIG_JSON="$CONFIG_5" ;;
+            *) echo '无效账号槽位'; exit 1 ;;
+          esac
+          test -n "$HEYBOX_CONFIG_JSON" || { echo '缺少账号配置'; exit 1; }
+          printf '%s' "$HEYBOX_CONFIG_JSON" > private/config.json
+          case "$BOT_ACTION" in
+            status) args=(status-json) ;;
+            sign) args=(sign-only) ;;
+            run) args=(run) ;;
+            activities) args=(activities-json) ;;
+            activity) args=(activity-json "$ACTIVITY_ID") ;;
+            activity_join) args=(activity-join-json "$ACTIVITY_ID" "$CONFIRMATION") ;;
+            *) echo '未知操作'; exit 1 ;;
+          esac
+          docker compose run --rm -T -e TG_CONFIRM_SECRET -e BOT_ACCOUNT heybox "${args[@]}" | tee "$RUNNER_TEMP/telegram-command.log"
+      - name: Send Telegram result
+        if: always()
+        env:
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+          BOT_ACTION: ${{ inputs.action }}
+          BOT_ACCOUNT: ${{ inputs.account }}
+          TASK_STATUS: ${{ steps.task.outcome == 'success' && '0' || '1' }}
+          RESULT_LOG: ${{ runner.temp }}/telegram-command.log
+        run: node scripts/telegram-report.mjs
+      - name: Mark failed command
+        if: steps.task.outcome != 'success'
+        run: exit 1
+

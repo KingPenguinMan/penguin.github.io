@@ -1,0 +1,95 @@
+import { loadConfig } from './config.js';
+import { HeyboxClient } from './client.js';
+import { inspect, runDaily, signOnly, snapshot } from './tasks.js';
+import { inspectActivity, listActivities, participateActivity, type ActivityView } from './activities.js';
+import { createHmac, timingSafeEqual } from 'node:crypto';
+import type { TaskSnapshot } from './types.js';
+
+function botJson(value: unknown) { console.log(`BOT_JSON ${JSON.stringify(value)}`); }
+function activityProof(view: ActivityView, secret: string) {
+  const ids = view.followAccounts.map(item => item.id).sort().join(',');
+  return createHmac('sha256', secret).update(`${process.env.BOT_ACCOUNT || '1'}:${view.id}:${ids}`).digest('base64url').slice(0, 16);
+}
+function validProof(actual: string, expected: string) {
+  const left = Buffer.from(actual); const right = Buffer.from(expected);
+  return left.length === right.length && timingSafeEqual(left, right);
+}
+
+function reportTasks(current?: TaskSnapshot, beforeCoin?: number) {
+  for (const [id, title] of [['1', '分享帖子'], ['19', '分享游戏'], ['31', '分享游戏评价']]) {
+    const state = current?.tasks.find(task => task.id === id)?.state;
+    console.log(`通知明细 ${title}：${state === 'finish' ? '已完成' : state === 'waiting' ? '待完成' : '未确认'}`);
+  }
+  const delta = current && beforeCoin !== undefined ? current.coin - beforeCoin : undefined;
+  console.log(`通知明细 H 币（盒币）：本次变化 ${delta === undefined ? '未知' : (delta >= 0 ? '+' : '') + delta}，余额 ${current?.coin ?? '未知'}`);
+}
+
+const command = process.argv[2] || 'check';
+try {
+  if (['--help', '-h', 'help'].includes(command)) {
+    console.log('用法：node dist/cli.js login|check|run|sign-only|status-json|activities-json|activity-json|activity-join-json');
+  } else if (command === 'login') {
+    const { createInterface } = await import('node:readline/promises');
+    const { runSmsLogin } = await import('./login.js');
+    const input = createInterface({ input: process.stdin, output: process.stdout });
+    try { await runSmsLogin({ ask: question => input.question(question) }); }
+    finally { input.close(); }
+  } else {
+    if (!['check', 'run', 'sign-only', 'status-json', 'activities-json', 'activity-json', 'activity-join-json'].includes(command)) {
+      throw new Error('未知命令');
+    }
+    const config = loadConfig();
+    const client = new HeyboxClient(config);
+    if (command === 'status-json') {
+      const state = await inspect(client, config.session.heybox_id);
+      botJson({ kind: 'status', account: config.session.heybox_id, nickname: state.profile?.nickname ?? config.profile?.nickname,
+        signed: state.signed, exp: state.exp, coin: state.coin,
+        tasks: state.tasks.filter(task => ['1', '19', '31'].includes(task.id)) });
+    } else if (command === 'activities-json') {
+      botJson({ kind: 'activities', account: config.session.heybox_id,
+        activities: await listActivities(client, config.session.heybox_id) });
+    } else if (command === 'activity-json' || command === 'activity-join-json') {
+      const id = process.argv[3] ?? '';
+      const secret = process.env.TG_CONFIRM_SECRET ?? '';
+      if (!secret) throw new Error('缺少活动确认密钥');
+      const current = await inspectActivity(client, config.session.heybox_id, id);
+      const proof = activityProof(current, secret);
+      if (command === 'activity-json') {
+        botJson({ kind: 'activity', activity: current,
+          confirmation: ['available', 'follow_required'].includes(current.status) ? proof : undefined });
+      } else {
+        const supplied = process.argv[4] ?? '';
+        if (!validProof(supplied, proof)) throw new Error('活动条件已变化，请重新查看后确认');
+        const result = await participateActivity(client, config.session.heybox_id, id, current.followAccounts.map(item => item.id));
+        botJson({ kind: 'activity_joined', activity: result });
+      }
+    } else if (command === 'sign-only') {
+      const readTasks = () => client.tasks().then(result => snapshot(result, config.session.heybox_id)).catch(() => undefined);
+      const before = await readTasks();
+      try { console.log(await signOnly(client)); }
+      finally { reportTasks(await readTasks(), before?.coin); }
+    } else if (command === 'check') {
+      const state = await inspect(client, config.session.heybox_id);
+      console.log(`签到：${state.signed ? '今天已完成' : '今天未完成'}`);
+      for (const task of state.tasks.filter(task => ['1', '19', '31'].includes(task.id))) {
+        console.log(`${task.title}：${task.state === 'finish' ? '已完成' : '未完成'}`);
+      }
+      console.log(`经验 ${state.exp}，H 币 ${state.coin}`);
+    } else {
+      let beforeCoin: number | undefined;
+      const summary = await runDaily(client, config.session.heybox_id, { onSnapshot(value) {
+        beforeCoin ??= value.coin;
+      } }).catch(async error => {
+        const current = await client.tasks().then(result => snapshot(result, config.session.heybox_id)).catch(() => undefined);
+        reportTasks(current, beforeCoin);
+        throw error;
+      });
+      reportTasks(summary.snapshot, beforeCoin);
+      console.log(`今日任务已完成，${summary.expDelta === undefined ? '' : `本次经验 +${summary.expDelta}，`}H 币 +${summary.coinDelta}`);
+    }
+  }
+} catch (error) {
+  console.error(error instanceof Error ? error.message : '执行失败');
+  process.exitCode = 1;
+}
+
