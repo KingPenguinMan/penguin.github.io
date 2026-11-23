@@ -19,26 +19,27 @@
   <meta name="author" content="KingPenguinMan">
   <meta name="keywords" content="">
   
-    <meta name="description" content="从本地短信登录开始，记录小黑盒定时签到、晚间兜底、Telegram 通知、Cloudflare Worker 和管理员多账号管理的完整部署流程，并附脱敏扩展配置。">
+    <meta name="description" content="用 GitHub Actions 自动完成小黑盒每日签到和分享任务，配置晚间补签；需要远程操作时，再选配 Telegram Bot 与 Cloudflare Worker。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="不买服务器，给小黑盒签到接上 GitHub Actions 与 Telegram 机器人">
+<meta property="og:title" content="小黑盒每日签到">
 <meta property="og:url" content="https://128374.xyz/2026/11/23/heybox-github-actions-telegram-cloudflare/index.html">
 <meta property="og:site_name" content="PenguinMan">
-<meta property="og:description" content="从本地短信登录开始，记录小黑盒定时签到、晚间兜底、Telegram 通知、Cloudflare Worker 和管理员多账号管理的完整部署流程，并附脱敏扩展配置。">
+<meta property="og:description" content="用 GitHub Actions 自动完成小黑盒每日签到和分享任务，配置晚间补签；需要远程操作时，再选配 Telegram Bot 与 Cloudflare Worker。">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://128374.xyz/images/heybox-guide/actions-flow.svg">
 <meta property="article:published_time" content="2026-11-23T04:00:00.000Z">
-<meta property="article:modified_time" content="2026-11-23T02:48:30.691Z">
+<meta property="article:modified_time" content="2026-11-23T02:53:42.310Z">
 <meta property="article:author" content="KingPenguinMan">
 <meta property="article:tag" content="GitHub Actions">
-<meta property="article:tag" content="Cloudflare">
+<meta property="article:tag" content="小黑盒">
 <meta property="article:tag" content="Telegram">
-<meta property="article:tag" content="Docker">
-<meta property="article:tag" content="自动化">
+<meta property="article:tag" content="Cloudflare">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://128374.xyz/images/heybox-guide/actions-flow.svg">
   
   
   
-  <title>不买服务器，给小黑盒签到接上 GitHub Actions 与 Telegram 机器人 - PenguinMan</title>
+  <title>小黑盒每日签到 - PenguinMan</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -333,13 +334,13 @@
   
 
 <div id="banner" class="banner" parallax=true
-     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+     style="background: url('/images/heybox-guide/actions-flow.svg') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="不买服务器，给小黑盒签到接上 GitHub Actions 与 Telegram 机器人"></span>
+            <span id="subtitle" data-typed-text="小黑盒每日签到"></span>
           
         </div>
 
@@ -373,7 +374,7 @@
         
         
         
-          105 分钟
+          108 分钟
         
       </span>
     
@@ -412,120 +413,37 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">不买服务器，给小黑盒签到接上 GitHub Actions 与 Telegram 机器人</h1>
+            <h1 id="seo-header">小黑盒每日签到</h1>
             
             
               <div class="markdown-body">
                 
-                <p>想让小黑盒每天自动完成签到，又不想专门购买服务器，可以让 GitHub Actions 执行任务，再用 Telegram 接收结果。进一步把 Telegram 指令交给 Cloudflare Worker，就能在聊天窗口里查状态、补签、选账号和查看抽奖活动。</p>
-<p>本文基于 <strong><a target="_blank" rel="noopener" href="https://github.com/Cansiny0320/heybox-daily">Cansiny0320&#x2F;heybox-daily</a></strong>，原作者是 <strong><a target="_blank" rel="noopener" href="https://github.com/Cansiny0320">Cansiny0320</a></strong>。项目代码及第三方资源分别遵循原仓库的 MIT License 与 NOTICE 说明。源码入口统一指向原作者仓库。</p>
-<p>需要先区分：原项目提供小黑盒任务、登录、Docker 与网站托管能力；本文的 Actions 时间表、Telegram Worker 和管理员五账号菜单属于额外适配。仅克隆原仓库不会自动出现下面所有菜单，因此我把脱敏的配套文件放在本文附件中。附件不是完整项目，必须与原项目一起使用。</p>
-<p>本文按 2026-11-23 的实现记录。平台界面、依赖和上游接口可能变化，复制前应核对版本。示例中的用户名、仓库名、KV ID 均需换成自己的，文章不包含真实账号凭证。</p>
+                <p>用 <strong>GitHub Actions</strong> 运行小黑盒每日任务：电脑只在首次登录时使用，之后由工作流按时执行。先把自动签到跑通；需要消息通知、手动补签或切换账号时，再接入后面的 Telegram Bot。</p>
+<p><img src="/images/heybox-guide/actions-flow.svg" srcset="/img/loading.gif" lazyload alt="从本地登录到 GitHub Actions 每日执行的流程"></p>
+<blockquote>
+<p><strong>源码与致谢</strong><br>本文基于 <a target="_blank" rel="noopener" href="https://github.com/Cansiny0320/heybox-daily">Cansiny0320&#x2F;heybox-daily</a>，原作者 <a target="_blank" rel="noopener" href="https://github.com/Cansiny0320">Cansiny0320</a>。签到与登录能力来自原项目，本文附带的 Actions 工作流、晚间兜底和 Telegram 菜单属于额外适配，不能仅克隆原项目就期待出现全部功能。原项目许可证和第三方声明继续保留。</p>
+</blockquote>
 <!-- more -->
 
-<h2 id="先安装配套扩展文件"><a href="#先安装配套扩展文件" class="headerlink" title="先安装配套扩展文件"></a>先安装配套扩展文件</h2><p>先从原作者仓库获得源码：</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs powershell">git clone https://github.com/Cansiny0320/heybox<span class="hljs-literal">-daily</span>.git<br><span class="hljs-built_in">cd</span> heybox<span class="hljs-literal">-daily</span><br></code></pre></td></tr></table></figure>
+<h2 id="一、先看部署路线"><a href="#一、先看部署路线" class="headerlink" title="一、先看部署路线"></a>一、先看部署路线</h2><p><strong>只要自动签到：</strong> 完成第二节即可。只需要 GitHub、小黑盒账号和一台用于首次登录的电脑。</p>
+<p><strong>还想接收通知：</strong> 完成第二节后，选配第三节的 Telegram 通知。</p>
+<p><strong>还想在聊天中操作：</strong> 再完成第四节，接入 Cloudflare Worker。可以查看状态、补签、执行每日任务和查看抽奖活动。</p>
+<p>不需要购买 VPS 或域名，使用平台免费额度即可起步。多账号和频繁构建会增加 Actions 用量，请在平台用量页面检查额度。本文按 2026-11-23 的实现整理；接口、依赖和控制台界面变化时，需要对照原项目调整。</p>
+<h2 id="二、GitHub-Actions-每日签到"><a href="#二、GitHub-Actions-每日签到" class="headerlink" title="二、GitHub Actions 每日签到"></a>二、GitHub Actions 每日签到</h2><h3 id="第-1-步：准备自己的仓库"><a href="#第-1-步：准备自己的仓库" class="headerlink" title="第 1 步：准备自己的仓库"></a>第 1 步：准备自己的仓库</h3><p>打开 <a target="_blank" rel="noopener" href="https://github.com/Cansiny0320/heybox-daily">原作者仓库</a>，点击右上角 <strong>Fork</strong>，创建到自己的账号下。也可以导入到自己的空仓库。</p>
+<p>在电脑上克隆你自己的仓库：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs powershell">git clone https://github.com/你的用户名/你的仓库名.git<br><span class="hljs-built_in">cd</span> 你的仓库名<br></code></pre></td></tr></table></figure>
 
-<p>把下面文件下载后，去掉文件名末尾的 <code>.txt</code>，按右侧目标路径放入本地仓库。GitHub 网页上传时要确保隐藏目录名称仍为 <code>.github</code>。建议先创建独立分支保存原版，再审阅差异；已有登录配置不要覆盖。</p>
-<table>
-<thead>
-<tr>
-<th>附件</th>
-<th>放入项目的路径</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><a href="/downloads/heybox-guide/1-cli.ts.txt">src&#x2F;cli.ts</a></td>
-<td><code>src/cli.ts</code></td>
-</tr>
-<tr>
-<td><a href="/downloads/heybox-guide/2-heybox-daily.yml.txt">.github&#x2F;workflows&#x2F;heybox-daily.yml</a></td>
-<td><code>.github/workflows/heybox-daily.yml</code></td>
-</tr>
-<tr>
-<td><a href="/downloads/heybox-guide/3-telegram-command.yml.txt">.github&#x2F;workflows&#x2F;telegram-command.yml</a></td>
-<td><code>.github/workflows/telegram-command.yml</code></td>
-</tr>
-<tr>
-<td><a href="/downloads/heybox-guide/4-deploy-telegram-bot.yml.txt">.github&#x2F;workflows&#x2F;deploy-telegram-bot.yml</a></td>
-<td><code>.github/workflows/deploy-telegram-bot.yml</code></td>
-</tr>
-<tr>
-<td><a href="/downloads/heybox-guide/5-telegram-report.mjs.txt">scripts&#x2F;telegram-report.mjs</a></td>
-<td><code>scripts/telegram-report.mjs</code></td>
-</tr>
-<tr>
-<td><a href="/downloads/heybox-guide/6-login-account.ps1.txt">scripts&#x2F;login-account.ps1</a></td>
-<td><code>scripts/login-account.ps1</code></td>
-</tr>
-<tr>
-<td><a href="/downloads/heybox-guide/7-worker.js.txt">telegram-worker&#x2F;src&#x2F;worker.js</a></td>
-<td><code>telegram-worker/src/worker.js</code></td>
-</tr>
-<tr>
-<td><a href="/downloads/heybox-guide/8-wrangler.jsonc.txt">telegram-worker&#x2F;wrangler.jsonc</a></td>
-<td><code>telegram-worker/wrangler.jsonc</code></td>
-</tr>
-<tr>
-<td><a href="/downloads/heybox-guide/LICENSE.txt">原项目 MIT 许可证副本</a></td>
-<td>保留项目原有 LICENSE，附件仅供阅读</td>
-</tr>
-</tbody></table>
-<p><code>src/cli.ts</code> 包含本文需要的 <code>sign-only</code>、状态 JSON 与活动操作入口，不能只复制工作流而漏掉它。这是基于本文验证时的源码适配，不保证未来版本可以无冲突覆盖；如原仓库接口变化，请对照差异合并。原项目 NOTICE 与第三方许可继续保留。</p>
-<p>附件中的 <code>telegram-worker/wrangler.jsonc</code> 已清除原部署信息，<code>YOUR_GITHUB_OWNER</code>、<code>YOUR_REPOSITORY</code>、<code>YOUR_KV_NAMESPACE_ID</code> 都需要填写；Worker 名称可按文章示例保留。</p>
-<p>接下来创建自己的 GitHub 仓库并推送这份带扩展的源码，按正文配置 Secrets。以下“Telegram Command”等名称指附件提供的工作流，不是承诺原仓库默认已有。</p>
-<h2 id="教程目录"><a href="#教程目录" class="headerlink" title="教程目录"></a>教程目录</h2><ol>
-<li><a href="#%E8%BF%90%E8%A1%8C%E6%96%B9%E5%BC%8F%E4%B8%8E%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C">运行方式与准备工作</a></li>
-<li><a href="#%E5%88%9B%E5%BB%BA%E6%88%96%E5%A4%8D%E5%88%B6-github-%E4%BB%93%E5%BA%93">创建或复制 GitHub 仓库</a></li>
-<li><a href="#%E6%9C%AC%E5%9C%B0%E7%99%BB%E5%BD%95%E4%B8%BB%E8%B4%A6%E5%8F%B7">本地登录主账号</a></li>
-<li><a href="#github-secrets-%E4%B8%8E-variables">GitHub Secrets 与 Variables</a></li>
-<li><a href="#%E5%88%9B%E5%BB%BA-telegram-%E6%9C%BA%E5%99%A8%E4%BA%BA">创建 Telegram 机器人</a></li>
-<li><a href="#%E5%88%9B%E5%BB%BA-cloudflare-worker-%E4%B8%8E-kv">创建 Cloudflare Worker 与 KV</a></li>
-<li><a href="#%E5%88%9B%E5%BB%BA-cloudflare-%E9%83%A8%E7%BD%B2%E4%BB%A4%E7%89%8C">创建 Cloudflare 部署令牌</a></li>
-<li><a href="#%E5%88%9B%E5%BB%BA-github-%E8%B0%83%E5%BA%A6%E4%BB%A4%E7%89%8C">创建 GitHub 调度令牌</a></li>
-<li><a href="#%E9%83%A8%E7%BD%B2%E4%B8%8E%E9%AA%8C%E6%94%B6">部署与验收</a></li>
-<li><a href="#%E6%B7%BB%E5%8A%A0%E6%9C%8B%E5%8F%8B%E8%B4%A6%E5%8F%B7">添加朋友账号</a></li>
-<li><a href="#%E6%93%8D%E4%BD%9C%E8%8F%9C%E5%8D%95%E4%B8%8E%E6%8A%BD%E5%A5%96">操作菜单与抽奖</a></li>
-<li><a href="#%E5%AE%9A%E6%97%B6%E7%AD%BE%E5%88%B0%E4%B8%8E%E6%96%AD%E7%AD%BE%E5%A4%84%E7%90%86">定时签到与断签处理</a></li>
-<li><a href="#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98">常见问题</a></li>
-<li><a href="#%E7%BB%B4%E6%8A%A4%E6%9A%82%E5%81%9C%E5%92%8C%E6%9B%B4%E6%96%B0">维护、暂停和更新</a></li>
-<li><a href="#%E6%94%B9%E9%80%A0%E8%AE%B0%E5%BD%95%E5%92%8C%E9%AA%8C%E8%AF%81%E8%BE%B9%E7%95%8C">改造记录和验证边界</a></li>
-</ol>
-<h2 id="运行方式与准备工作"><a href="#运行方式与准备工作" class="headerlink" title="运行方式与准备工作"></a>运行方式与准备工作</h2><p>本方案不需要 VPS，不需要电脑一直开机。电脑用于首次短信登录和更新凭证；Cloudflare Worker 接收 Telegram 操作并调度 GitHub；实际签到和抽奖在 GitHub Actions 执行。KV 保存机器人选中账号、消息去重等状态，小黑盒账号配置保存在 GitHub Secrets。</p>
-<p>当前支持：一个 Telegram 管理员统一管理最多 5 个账号、每日签到与分享、晚间补签、状态和盒币查询、抽奖列表与确认参与。朋友不能用自己的 Telegram 操作你的机器人。首次登录在本地进行，没有云端弹出的手机号登录网页。</p>
-<p>准备 GitHub 账号、Cloudflare 账号、Telegram，以及本机 Git、Node.js 24 或项目支持的更新版本。Docker 是可选登录方式。不需要购买域名，可使用 workers.dev 地址。</p>
-<p>“免费”指使用平台免费额度，并非无限免费。多账号、镜像构建和频繁手动操作会增加 GitHub Actions 用量，请查看平台用量和支出限制。</p>
-<h2 id="创建或复制-GitHub-仓库"><a href="#创建或复制-GitHub-仓库" class="headerlink" title="创建或复制 GitHub 仓库"></a>创建或复制 GitHub 仓库</h2><p>已有本文扩展方案部署可直接跳过。新用户可以 Fork 本文扩展方案，也可以创建自己的空仓库后导入：</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs powershell">git clone https://github.com/Cansiny0320/heybox<span class="hljs-literal">-daily</span>.git<br><span class="hljs-built_in">cd</span> heybox<span class="hljs-literal">-daily</span><br>git remote rename origin source<br>git remote add origin https://github.com/你的用户名/你的仓库名.git<br>git push <span class="hljs-literal">-u</span> origin main<br></code></pre></td></tr></table></figure>
+<p>原项目本身支持本地或 Docker 执行。要使用本文的每日运行与晚间补签，先下载下面两个扩展文件，去掉末尾的 <code>.txt</code>，按对应路径放入仓库：</p>
+<ul>
+<li><a href="/downloads/heybox-guide/1-cli.ts.txt">任务命令扩展：cli.ts</a> → <code>src/cli.ts</code></li>
+<li><a href="/downloads/heybox-guide/2-heybox-daily.yml.txt">定时工作流：heybox-daily.yml</a> → <code>.github/workflows/heybox-daily.yml</code></li>
+</ul>
+<p>工作流依赖扩展后的 <code>sign-only</code> 命令，两个文件需要一起安装。已有源码请先创建分支并核对差异；本文附件适配的是验证时的版本，未来上游版本需要合并而非直接覆盖。不要覆盖本地账号配置。</p>
+<p>安装完成后，把这两个文件提交到自己仓库的默认分支 <code>main</code>：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs powershell">git add src/cli.ts .github/workflows/heybox<span class="hljs-literal">-daily</span>.yml<br>git commit <span class="hljs-literal">-m</span> <span class="hljs-string">&quot;Add scheduled daily tasks&quot;</span><br>git push origin main<br></code></pre></td></tr></table></figure>
 
-<p>按 GitHub 提示完成登录，不把 Token 写进远程地址。导入目标应为空库，已有内容时先检查，勿强制覆盖。</p>
-<p>进入仓库顶部 <strong>Actions</strong>，如果出现启用工作流的提示，确认启用。仓库 <strong>Settings → Actions → General</strong> 应允许工作流使用所需 Actions。当前默认分支为 <code>main</code>。</p>
-<table>
-<thead>
-<tr>
-<th>工作流</th>
-<th>用途</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Heybox Daily</td>
-<td>定时与手动运行全部已配置账号</td>
-</tr>
-<tr>
-<td>Telegram Command</td>
-<td>执行机器人提交的单账号操作</td>
-</tr>
-<tr>
-<td>Deploy Telegram Bot</td>
-<td>发布 Worker、写密钥、注册 webhook 和快捷菜单</td>
-</tr>
-<tr>
-<td>CI</td>
-<td>源码构建和测试，和签到工作流不同</td>
-</tr>
-</tbody></table>
-<p>完成下方扩展文件安装后，需要修改 <code>telegram-worker/wrangler.jsonc</code> 中 <code>GITHUB_OWNER</code>、<code>GITHUB_REPO</code> 和自己的 KV ID；Worker 名称变化时也要修改 <code>name</code>。默认分支不是 <code>main</code> 时，需要同步检查 Worker 中 dispatch 的分支与部署触发分支。</p>
-<h2 id="本地登录主账号"><a href="#本地登录主账号" class="headerlink" title="本地登录主账号"></a>本地登录主账号</h2><p>在仓库目录打开 PowerShell，检查并安装依赖：</p>
+<p>打开仓库顶部 <strong>Actions</strong>，按提示启用工作流。若看不到文件，检查是否已推送到默认分支。</p>
+<h3 id="第-2-步：在本地登录"><a href="#第-2-步：在本地登录" class="headerlink" title="第 2 步：在本地登录"></a>第 2 步：在本地登录</h3><p>在仓库目录打开 PowerShell，检查并安装依赖：</p>
 <figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs powershell">node <span class="hljs-literal">--version</span><br>git <span class="hljs-literal">--version</span><br>npm install <span class="hljs-literal">--global</span> pnpm@<span class="hljs-number">12.15</span>.<span class="hljs-number">0</span><br>pnpm install <span class="hljs-literal">--frozen-lockfile</span> <span class="hljs-literal">--ignore-scripts</span><br>pnpm build<br>node dist/cli.js login<br></code></pre></td></tr></table></figure>
 
 <p>安装和构建必须成功后再运行登录。程序先获取设备令牌，再提示手机号和短信验证码，国内号码默认使用 +86。只输入自己或经授权账号的信息，验证码不发进 Telegram 聊天。</p>
@@ -537,7 +455,66 @@
 <figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs powershell">docker compose build heybox login<br>docker compose run <span class="hljs-literal">--rm</span> login<br>docker compose run <span class="hljs-literal">--rm</span> heybox check<br></code></pre></td></tr></table></figure>
 
 <p>打开 <code>private/config.json</code>，复制包含最外层大括号的完整 JSON，保存为 GitHub Secret <code>HEYBOX_CONFIG_JSON</code>。不要只复制某个字段，不要额外包一层引号。<code>private/</code> 被 Git 忽略，仍不要强制上传。</p>
-<h2 id="GitHub-Secrets-与-Variables"><a href="#GitHub-Secrets-与-Variables" class="headerlink" title="GitHub Secrets 与 Variables"></a>GitHub Secrets 与 Variables</h2><p>入口：<strong>目标仓库 → Settings → Secrets and variables → Actions</strong>。这是仓库设置，不是个人令牌设置。</p>
+<h3 id="第-3-步：把凭证保存到-GitHub"><a href="#第-3-步：把凭证保存到-GitHub" class="headerlink" title="第 3 步：把凭证保存到 GitHub"></a>第 3 步：把凭证保存到 GitHub</h3><p>进入 <strong>仓库 → Settings → Secrets and variables → Actions → Secrets</strong>。</p>
+<ol>
+<li>点击 <strong>New repository secret</strong>。</li>
+<li><strong>Name</strong> 填 <code>HEYBOX_CONFIG_JSON</code>。</li>
+<li><strong>Secret</strong> 粘贴 <code>private/config.json</code> 的完整内容，包括最外层大括号。</li>
+<li>点击 <strong>Add secret</strong> 保存。</li>
+</ol>
+<p>这一步只需要一个账号 Secret。Cloudflare Token、GitHub PAT 和 Telegram Token 都是后面可选功能的配置，不必现在创建。</p>
+<p><img src="/images/heybox-guide/secret-map.svg" srcset="/img/loading.gif" lazyload alt="账号凭证从本地文件到仓库 Secret 的对应关系"></p>
+<p>保存后无法查看旧值是正常的。需要换凭证时点右侧铅笔更新；不要为了核对而把内容回显到日志。</p>
+<h3 id="第-4-步：手动运行一次"><a href="#第-4-步：手动运行一次" class="headerlink" title="第 4 步：手动运行一次"></a>第 4 步：手动运行一次</h3><p>打开 <strong>Actions → Heybox Daily → Run workflow</strong>：</p>
+<ol>
+<li>分支选择 <code>main</code>。</li>
+<li>第一次可以不勾选“只检查和补签”，测试完整每日任务。</li>
+<li>确认运行，打开最新记录。</li>
+<li>查看账号 1 的构建和任务步骤是否成功，再去小黑盒核对实际签到状态。</li>
+</ol>
+<p>当前工作流预留 5 个槽位，未配置的账号会跳过主要步骤。只配了账号 1 时，不需要为其他槽位填写任何东西。</p>
+<p><strong>做到这里，每日自动签到就已配置完成。</strong> 后面的 Telegram Bot 是可选项。</p>
+<h3 id="每天什么时候执行？"><a href="#每天什么时候执行？" class="headerlink" title="每天什么时候执行？"></a>每天什么时候执行？</h3><p>工作流 <code>.github/workflows/heybox-daily.yml</code> 使用 UTC cron：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">schedule:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">cron:</span> <span class="hljs-string">&#x27;15 1 * * *&#x27;</span>  <span class="hljs-comment"># 北京时间 09:15</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">cron:</span> <span class="hljs-string">&#x27;15 12 * * *&#x27;</span> <span class="hljs-comment"># 北京时间 20:15</span><br></code></pre></td></tr></table></figure>
+
+<p>代码通过 <code>15 12 * * *</code> 这个字符串识别晚间任务。修改晚间 cron 时必须同步修改 <code>TASK_COMMAND</code> 对应判断，否则可能执行完整每日任务。</p>
+<p>5 个槽位当前按矩阵顺序、最多 1 个并行执行。空槽位跳过主要步骤，后面的账号可能更晚通知。晚间已签到时静默，补签成功或检查失败才通知；手动 <code>/sign</code> 会报告操作结果。</p>
+<p>通知里“部署实践中 H 币变化”是此次任务前后差值，不是当天全部来源的累计收入。查询余额不能代表所有奖励已经到账。</p>
+<p>GitHub 调度可能延迟，高负载时甚至丢弃任务，计划 09:15 不保证准点到达。晚间兜底提高恢复机会，仍不能保证不断签。<a target="_blank" rel="noopener" href="https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule">官方调度说明</a>。公开库 60 天没有活动可能自动停用定时工作流，需检查启用状态。<a target="_blank" rel="noopener" href="https://docs.github.com/en/actions/how-tos/manage-workflow-runs/disable-and-enable-workflows">官方停用说明</a>。</p>
+<p>担心断签时先 <code>/status</code>，未签再 <code>/sign</code>。也可 Actions → Heybox Daily → Run workflow 勾选只检查和补签；这个工作流处理全部已配置账号，机器人指令处理单账号。</p>
+<h2 id="三、可选：用-Telegram-接收结果"><a href="#三、可选：用-Telegram-接收结果" class="headerlink" title="三、可选：用 Telegram 接收结果"></a>三、可选：用 Telegram 接收结果</h2><p>如果只想看 GitHub 的执行日志，可以跳过这一节。希望每天在手机收到结果，则先创建 Bot，再保存两个 Secret。</p>
+<h3 id="创建-Telegram-机器人"><a href="#创建-Telegram-机器人" class="headerlink" title="创建 Telegram 机器人"></a>创建 Telegram 机器人</h3><h4 id="创建身份"><a href="#创建身份" class="headerlink" title="创建身份"></a>创建身份</h4><ol>
+<li>Telegram 打开官方 <a target="_blank" rel="noopener" href="https://t.me/BotFather">@BotFather</a>，发送 <code>/newbot</code>。</li>
+<li>输入显示名称，如“自动任务助手”。</li>
+<li>输入唯一用户名，建议以 <code>bot</code> 结尾；被占用则更换。</li>
+<li>复制创建成功消息中的 Token，保存到 Secret <code>TG_BOT_TOKEN</code>。</li>
+<li>打开自己新机器人的私聊，发送普通 <code>/start</code>。</li>
+</ol>
+<p>刚创建时不回复正常：BotFather 只创建身份，后面的 Worker 部署负责回复。不要只给 BotFather 发 <code>/start</code>，也不用拼接以前的引导字符串。</p>
+<h4 id="获取-TG-CHAT-ID"><a href="#获取-TG-CHAT-ID" class="headerlink" title="获取 TG_CHAT_ID"></a>获取 TG_CHAT_ID</h4><p>首次尚未设置 webhook 时，给自己的机器人发一条消息，再在 PowerShell 输入 Token 查询：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-variable">$secureToken</span> = <span class="hljs-built_in">Read-Host</span> <span class="hljs-string">&#x27;输入 Bot Token&#x27;</span> <span class="hljs-literal">-AsSecureString</span><br><span class="hljs-variable">$botToken</span> = [<span class="hljs-type">System.Net.NetworkCredential</span>]::new(<span class="hljs-string">&#x27;&#x27;</span>, <span class="hljs-variable">$secureToken</span>).Password<br><span class="hljs-variable">$updates</span> = <span class="hljs-built_in">Invoke-RestMethod</span> <span class="hljs-literal">-Uri</span> <span class="hljs-string">&quot;https://api.telegram.org/bot<span class="hljs-variable">$botToken</span>/getUpdates&quot;</span><br><span class="hljs-variable">$updates</span>.result | <span class="hljs-built_in">ForEach-Object</span> &#123; <span class="hljs-variable">$_</span>.message.chat &#125; | <span class="hljs-built_in">Select-Object</span> id, <span class="hljs-built_in">type</span><br><span class="hljs-built_in">Remove-Variable</span> botToken, secureToken, updates<br></code></pre></td></tr></table></figure>
+
+<p>选择你自己对应的 <code>private</code> 私聊 id，保存为 <code>TG_CHAT_ID</code>。结果为空先给机器人发新消息再查询。</p>
+<p>已经设置 webhook 后不能同时使用 getUpdates；已部署管理员保留原 Chat ID，勿为查询 ID 随意删除线上 webhook。<a target="_blank" rel="noopener" href="https://core.telegram.org/bots/faq">Telegram 官方说明</a>。</p>
+<h4 id="头像、简介和快捷菜单"><a href="#头像、简介和快捷菜单" class="headerlink" title="头像、简介和快捷菜单"></a>头像、简介和快捷菜单</h4><p>BotFather 发送 <code>/mybots</code>，选机器人，在 <strong>Edit Bot</strong> 中修改头像、名称、Description、About。也可使用 <code>/setuserpic</code>、<code>/setdescription</code>、<code>/setabouttext</code> 按提示操作。</p>
+<p>本文扩展方案部署流程自动注册 <code>/</code> 命令菜单，不需要每次到 BotFather 重设。输入框输入 <code>/</code> 可查看；有缓存时退出对话重新进入。</p>
+<blockquote>
+<p>仅发通知需要 <code>TG_BOT_TOKEN</code> 和 <code>TG_CHAT_ID</code>，无需配置 Cloudflare 或 GitHub 调度令牌。</p>
+</blockquote>
+<p>保存 Telegram 两项后，再手动运行一次 <strong>Heybox Daily</strong>。正常会收到账号、任务状态和 H 币情况。通知不包含仓库链接；晚间检查发现已签时保持安静，漏签补签或检查失败时才提醒。</p>
+<h2 id="四、可选：给机器人加操作菜单"><a href="#四、可选：给机器人加操作菜单" class="headerlink" title="四、可选：给机器人加操作菜单"></a>四、可选：给机器人加操作菜单</h2><p>这部分会增加 Cloudflare Worker、KV 和 GitHub 调度令牌。它们负责接收指令并提交任务；实际签到仍由 GitHub Actions 执行。</p>
+<p><img src="/images/heybox-guide/bot-flow.svg" srcset="/img/loading.gif" lazyload alt="Telegram 可选控制层与 GitHub 执行层的关系"></p>
+<h3 id="生成-webhook-密钥"><a href="#生成-webhook-密钥" class="headerlink" title="生成 webhook 密钥"></a>生成 webhook 密钥</h3><p>PowerShell 运行：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs powershell">[<span class="hljs-type">Convert</span>]::ToHexString([<span class="hljs-type">System.Security.Cryptography.RandomNumberGenerator</span>]::GetBytes(<span class="hljs-number">32</span>))<br></code></pre></td></tr></table></figure>
+
+<p>将生成值保存为 Secret <code>TG_WEBHOOK_SECRET</code>。它与 Bot Token、Cloudflare Token、GitHub PAT 是四种不同的值。部署自动同步到 Worker 与 Telegram，抽奖确认也使用它。</p>
+<h3 id="先补齐交互功能文件"><a href="#先补齐交互功能文件" class="headerlink" title="先补齐交互功能文件"></a>先补齐交互功能文件</h3><p>下载本文末尾的配套附件，按原路径放入仓库。除第二节已有的两个文件外，还需要 Telegram 指令工作流、Worker 部署工作流、通知脚本、Worker 源码与 Wrangler 配置。</p>
+<p>先将 <code>telegram-worker/wrangler.jsonc</code> 的 <code>GITHUB_OWNER</code>、<code>GITHUB_REPO</code> 改成自己的用户名与仓库名。KV ID 在创建空间后再填写。将扩展提交到自己仓库后继续配置。</p>
+<details>
+<summary><strong>展开：交互机器人需要的 Secrets 与 Variable 对照表</strong></summary>
+
+
+<p>入口：<strong>目标仓库 → Settings → Secrets and variables → Actions</strong>。这是仓库设置，不是个人令牌设置。</p>
 <p>新增 Secret：切到 <strong>Secrets → New repository secret</strong>；Name 填指定名称，Secret 填实际内容，点击 Add secret。已有项点铅笔或 Update 更新。保存后看不到旧值是正常现象。</p>
 <table>
 <thead>
@@ -593,28 +570,11 @@
 <td>Worker 根地址，例如 <code>https://heybox-telegram-bot.你的子域.workers.dev</code></td>
 </tr>
 </tbody></table>
-<p>注意：当前代码直接从 <code>telegram-worker/wrangler.jsonc</code> 读取 KV ID。之前即使添加过 <code>CLOUDFLARE_KV_ID</code> Variable，也不会自动替换配置文件。</p>
-<h2 id="创建-Telegram-机器人"><a href="#创建-Telegram-机器人" class="headerlink" title="创建 Telegram 机器人"></a>创建 Telegram 机器人</h2><h3 id="创建身份"><a href="#创建身份" class="headerlink" title="创建身份"></a>创建身份</h3><ol>
-<li>Telegram 打开官方 <a target="_blank" rel="noopener" href="https://t.me/BotFather">@BotFather</a>，发送 <code>/newbot</code>。</li>
-<li>输入显示名称，如“自动任务助手”。</li>
-<li>输入唯一用户名，建议以 <code>bot</code> 结尾；被占用则更换。</li>
-<li>复制创建成功消息中的 Token，保存到 Secret <code>TG_BOT_TOKEN</code>。</li>
-<li>打开自己新机器人的私聊，发送普通 <code>/start</code>。</li>
-</ol>
-<p>刚创建时不回复正常：BotFather 只创建身份，后面的 Worker 部署负责回复。不要只给 BotFather 发 <code>/start</code>，也不用拼接以前的引导字符串。</p>
-<h3 id="获取-TG-CHAT-ID"><a href="#获取-TG-CHAT-ID" class="headerlink" title="获取 TG_CHAT_ID"></a>获取 TG_CHAT_ID</h3><p>首次尚未设置 webhook 时，给自己的机器人发一条消息，再在 PowerShell 输入 Token 查询：</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-variable">$secureToken</span> = <span class="hljs-built_in">Read-Host</span> <span class="hljs-string">&#x27;输入 Bot Token&#x27;</span> <span class="hljs-literal">-AsSecureString</span><br><span class="hljs-variable">$botToken</span> = [<span class="hljs-type">System.Net.NetworkCredential</span>]::new(<span class="hljs-string">&#x27;&#x27;</span>, <span class="hljs-variable">$secureToken</span>).Password<br><span class="hljs-variable">$updates</span> = <span class="hljs-built_in">Invoke-RestMethod</span> <span class="hljs-literal">-Uri</span> <span class="hljs-string">&quot;https://api.telegram.org/bot<span class="hljs-variable">$botToken</span>/getUpdates&quot;</span><br><span class="hljs-variable">$updates</span>.result | <span class="hljs-built_in">ForEach-Object</span> &#123; <span class="hljs-variable">$_</span>.message.chat &#125; | <span class="hljs-built_in">Select-Object</span> id, <span class="hljs-built_in">type</span><br><span class="hljs-built_in">Remove-Variable</span> botToken, secureToken, updates<br></code></pre></td></tr></table></figure>
+<p>注意：本文扩展直接从 <code>telegram-worker/wrangler.jsonc</code> 读取 KV ID。之前即使添加过 <code>CLOUDFLARE_KV_ID</code> Variable，也不会自动替换配置文件。</p>
+</details>
 
-<p>选择你自己对应的 <code>private</code> 私聊 id，保存为 <code>TG_CHAT_ID</code>。结果为空先给机器人发新消息再查询。</p>
-<p>已经设置 webhook 后不能同时使用 getUpdates；已部署管理员保留原 Chat ID，勿为查询 ID 随意删除线上 webhook。<a target="_blank" rel="noopener" href="https://core.telegram.org/bots/faq">Telegram 官方说明</a>。</p>
-<h3 id="生成-webhook-密钥"><a href="#生成-webhook-密钥" class="headerlink" title="生成 webhook 密钥"></a>生成 webhook 密钥</h3><p>PowerShell 运行：</p>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs powershell">[<span class="hljs-type">Convert</span>]::ToHexString([<span class="hljs-type">System.Security.Cryptography.RandomNumberGenerator</span>]::GetBytes(<span class="hljs-number">32</span>))<br></code></pre></td></tr></table></figure>
-
-<p>将生成值保存为 Secret <code>TG_WEBHOOK_SECRET</code>。它与 Bot Token、Cloudflare Token、GitHub PAT 是四种不同的值。部署自动同步到 Worker 与 Telegram，抽奖确认也使用它。</p>
-<h3 id="头像、简介和快捷菜单"><a href="#头像、简介和快捷菜单" class="headerlink" title="头像、简介和快捷菜单"></a>头像、简介和快捷菜单</h3><p>BotFather 发送 <code>/mybots</code>，选机器人，在 <strong>Edit Bot</strong> 中修改头像、名称、Description、About。也可使用 <code>/setuserpic</code>、<code>/setdescription</code>、<code>/setabouttext</code> 按提示操作。</p>
-<p>本文扩展方案部署流程自动注册 <code>/</code> 命令菜单，不需要每次到 BotFather 重设。输入框输入 <code>/</code> 可查看；有缓存时退出对话重新进入。</p>
-<h2 id="创建-Cloudflare-Worker-与-KV"><a href="#创建-Cloudflare-Worker-与-KV" class="headerlink" title="创建 Cloudflare Worker 与 KV"></a>创建 Cloudflare Worker 与 KV</h2><p>已创建正确资源的用户复用即可。界面可能中英混合，下面按实际遇到的中文按钮描述。</p>
-<h3 id="创建-Worker"><a href="#创建-Worker" class="headerlink" title="创建 Worker"></a>创建 Worker</h3><ol>
+<h3 id="创建-Cloudflare-Worker-与-KV"><a href="#创建-Cloudflare-Worker-与-KV" class="headerlink" title="创建 Cloudflare Worker 与 KV"></a>创建 Cloudflare Worker 与 KV</h3><p>已创建正确资源的用户复用即可。界面可能中英混合，下面按实际遇到的中文按钮描述。</p>
+<h4 id="创建-Worker"><a href="#创建-Worker" class="headerlink" title="创建 Worker"></a>创建 Worker</h4><ol>
 <li>进入 <a target="_blank" rel="noopener" href="https://dash.cloudflare.com/">Cloudflare 控制台</a>，选择自己的账户。</li>
 <li>左侧 <strong>计算 → Workers 和 Pages</strong>，点击创建应用或 Worker。</li>
 <li>“创建新项目”选择 <strong>从 Hello World! 开始</strong>。</li>
@@ -624,7 +584,7 @@
 <p>不选择 Upload your static files；后续 GitHub 工作流会替换初始 Hello World 代码。</p>
 <p>地址形如 <code>https://heybox-telegram-bot.你的子域.workers.dev</code>。“你的子域”是账户的 workers.dev 子域，不是机器人用户名，也不是 KV ID，不需要付费域名。以控制台显示的完整地址为准。</p>
 <p>把这个根地址存为 GitHub Variable <code>TELEGRAM_WORKER_URL</code>，不用加 <code>/telegram</code>，部署流程自动补齐。</p>
-<h3 id="创建-KV-空间"><a href="#创建-KV-空间" class="headerlink" title="创建 KV 空间"></a>创建 KV 空间</h3><ol>
+<h4 id="创建-KV-空间"><a href="#创建-KV-空间" class="headerlink" title="创建 KV 空间"></a>创建 KV 空间</h4><ol>
 <li>左侧 <strong>存储和数据库 → Workers KV</strong>。</li>
 <li>点击 <strong>创建 KV 命名空间</strong>。</li>
 <li>名称填 <code>heybox-telegram-bot-state</code>。</li>
@@ -632,7 +592,7 @@
 <li>空间内显示“当前没有任何条目”正常，机器人使用后才写状态。</li>
 </ol>
 <p>不要混用其他网站已经在使用的空间。</p>
-<h3 id="绑定到-Worker"><a href="#绑定到-Worker" class="headerlink" title="绑定到 Worker"></a>绑定到 Worker</h3><ol>
+<h4 id="绑定到-Worker"><a href="#绑定到-Worker" class="headerlink" title="绑定到 Worker"></a>绑定到 Worker</h4><ol>
 <li><strong>Workers 和 Pages → heybox-telegram-bot → 设置 → 绑定</strong>。</li>
 <li>点击 <strong>添加绑定</strong>，左侧选择 <strong>KV 命名空间</strong>。</li>
 <li>如果右侧只有介绍和代码示例，点击右下角 <strong>添加绑定</strong> 进入填写步骤，示例代码不用修改。</li>
@@ -640,7 +600,7 @@
 <li>空间选刚创建的 <code>heybox-telegram-bot-state</code>，保存&#x2F;部署。</li>
 </ol>
 <p>成功后列表应显示：类型 KV 命名空间，名称 BOT_STATE，值为新空间名称。</p>
-<h3 id="同步-Wrangler-配置"><a href="#同步-Wrangler-配置" class="headerlink" title="同步 Wrangler 配置"></a>同步 Wrangler 配置</h3><p>如果页面提示“更新您的 Wrangler 配置”，还需打开仓库 <code>telegram-worker/wrangler.jsonc</code> 同步以下字段并提交：</p>
+<h4 id="同步-Wrangler-配置"><a href="#同步-Wrangler-配置" class="headerlink" title="同步 Wrangler 配置"></a>同步 Wrangler 配置</h4><p>如果页面提示“更新您的 Wrangler 配置”，还需打开仓库 <code>telegram-worker/wrangler.jsonc</code> 同步以下字段并提交：</p>
 <figure class="highlight jsonc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs jsonc"><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;heybox-telegram-bot&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;main&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;src/worker.js&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;compatibility_date&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;2026-11-22&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;workers_dev&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;vars&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;GITHUB_OWNER&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;你的GitHub用户名&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;GITHUB_REPO&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;你的仓库名&quot;</span><br>  <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;kv_namespaces&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>    <span class="hljs-punctuation">&#123;</span> <span class="hljs-attr">&quot;binding&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;BOT_STATE&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;你自己的KV空间ID&quot;</span> <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">]</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
 
 <p>示例展示关键字段，原文件其他适用配置可以保留。不能沿用原作者或本文扩展方案维护者的资源 ID。</p>
@@ -668,7 +628,7 @@
 <td>Variable <code>TELEGRAM_WORKER_URL</code></td>
 </tr>
 </tbody></table>
-<h2 id="创建-Cloudflare-部署令牌"><a href="#创建-Cloudflare-部署令牌" class="headerlink" title="创建 Cloudflare 部署令牌"></a>创建 Cloudflare 部署令牌</h2><ol>
+<h3 id="创建-Cloudflare-部署令牌"><a href="#创建-Cloudflare-部署令牌" class="headerlink" title="创建 Cloudflare 部署令牌"></a>创建 Cloudflare 部署令牌</h3><ol>
 <li>Cloudflare 找到 <strong>账户 API 令牌</strong>，也可从个人资料 API 令牌入口进入对应管理页。</li>
 <li>点击 <strong>创建令牌</strong>，名称如 <code>Heybox Telegram Deploy</code>。</li>
 <li>权限模板选择 <strong>Edit Cloudflare Workers</strong>。</li>
@@ -681,7 +641,7 @@
 <p>不要只根据旧教程寻找“Workers 脚本”字样：Cloudflare 新界面可能显示 Workers Editor&#x2F;Admin 等粒度。Editor 用于更新已有 Worker，创建&#x2F;删除需要相应管理权限；KV 等操作也需对应权限。优先用适用的 Workers 模板，具体以 <a target="_blank" rel="noopener" href="https://developers.cloudflare.com/workers/authorization/">Cloudflare 官方权限说明</a> 和错误日志为准。</p>
 <p>GitHub 仓库 Secrets 中保存：<code>CLOUDFLARE_API_TOKEN</code> 填完整 Token，<code>CLOUDFLARE_ACCOUNT_ID</code> 填账户 ID。Token 不带引号、Bearer、空格或多余换行。</p>
 <p>创建后不再显示原文正常。曾经出现在公开截图、聊天、代码或日志中的令牌应撤销换新；本文不收录任何历史真实 Token。</p>
-<h2 id="创建-GitHub-调度令牌"><a href="#创建-GitHub-调度令牌" class="headerlink" title="创建 GitHub 调度令牌"></a>创建 GitHub 调度令牌</h2><p>这个 PAT 供 Worker 触发 Telegram Command，不是 Cloudflare 部署令牌。</p>
+<h3 id="创建-GitHub-调度令牌"><a href="#创建-GitHub-调度令牌" class="headerlink" title="创建 GitHub 调度令牌"></a>创建 GitHub 调度令牌</h3><p>这个 PAT 供 Worker 触发 Telegram Command，不是 Cloudflare 部署令牌。</p>
 <ol>
 <li>GitHub 头像 → <strong>Settings → Developer settings → Personal access tokens → Fine-grained tokens</strong>。</li>
 <li>点击 <strong>Generate new token</strong>，或打开 <a target="_blank" rel="noopener" href="https://github.com/settings/personal-access-tokens/new">创建页</a>。</li>
@@ -693,7 +653,7 @@
 <li>创建后复制，保存到仓库 Secret <strong><code>BOT_GITHUB_TOKEN</code></strong>。</li>
 </ol>
 <p>后续部署自动把该 Secret 写入 Worker，无需在 Cloudflare 重复手填。若 Token 更新，必须再部署一次 Worker 才会同步。</p>
-<h2 id="部署与验收"><a href="#部署与验收" class="headerlink" title="部署与验收"></a>部署与验收</h2><h3 id="手动部署"><a href="#手动部署" class="headerlink" title="手动部署"></a>手动部署</h3><p>仓库 <strong>Actions → Deploy Telegram Bot → Run workflow</strong>，分支选 <code>main</code>，确认运行并打开最新记录。</p>
+<h3 id="部署与验收"><a href="#部署与验收" class="headerlink" title="部署与验收"></a>部署与验收</h3><h4 id="手动部署"><a href="#手动部署" class="headerlink" title="手动部署"></a>手动部署</h4><p>仓库 <strong>Actions → Deploy Telegram Bot → Run workflow</strong>，分支选 <code>main</code>，确认运行并打开最新记录。</p>
 <p>修改 <code>telegram-worker/</code> 或部署工作流后推送到 main 也会自动发布。<strong>只修改 Secret 不会自动部署</strong>，需要手动运行。</p>
 <table>
 <thead>
@@ -720,7 +680,7 @@
 </tr>
 </tbody></table>
 <p>四项都应成功。根地址返回 <code>Heybox Telegram bot is running.</code> 只证明 Worker 可访问，不能单独证明所有配置正确。部署注册 webhook 会丢弃当时尚未投递的旧更新，部署期间发送的指令可能需要重发。</p>
-<h3 id="验收顺序"><a href="#验收顺序" class="headerlink" title="验收顺序"></a>验收顺序</h3><ol>
+<h4 id="验收顺序"><a href="#验收顺序" class="headerlink" title="验收顺序"></a>验收顺序</h4><ol>
 <li>私聊自己的机器人发送 <code>/start</code>，看到菜单。</li>
 <li><code>/accounts</code> 选择账号 1，再 <code>/status</code>。</li>
 <li>等待 GitHub 构建和执行，核对返回的盒友 ID、签到和盒币状态。</li>
@@ -729,7 +689,42 @@
 <li>确认账号正确后再使用签到、任务或活动参与按钮。</li>
 </ol>
 <p>任务需要排队、构建和访问上游，可能等待几分钟，不是 Worker 即时完成。已提示提交成功时避免重复点击。</p>
-<h2 id="添加朋友账号"><a href="#添加朋友账号" class="headerlink" title="添加朋友账号"></a>添加朋友账号</h2><p>由管理员取得朋友授权后在本地登录，分别存储。最多 5 个槽位：</p>
+<h3 id="操作菜单与抽奖"><a href="#操作菜单与抽奖" class="headerlink" title="操作菜单与抽奖"></a>操作菜单与抽奖</h3><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/start</code></td>
+<td>打开当前账号操作菜单</td>
+</tr>
+<tr>
+<td><code>/accounts</code></td>
+<td>切换当前管理账号</td>
+</tr>
+<tr>
+<td><code>/status</code></td>
+<td>查询签到、分享、经验、H 币和盒友 ID</td>
+</tr>
+<tr>
+<td><code>/sign</code></td>
+<td>检查并补签</td>
+</tr>
+<tr>
+<td><code>/run</code></td>
+<td>执行每日任务</td>
+</tr>
+<tr>
+<td><code>/activities</code></td>
+<td>获取抽奖活动列表</td>
+</tr>
+</tbody></table>
+<p>普通命令使用当前账号；旧消息的操作按钮绑定消息生成时的账号，切换后仍操作原账号。建议切换后重新 <code>/start</code> 使用新菜单。</p>
+<p>抽奖依次点击“抽奖活动 → 某活动详情 → 确认参与”。需要关注时详情会显示要求，确认按钮为“确认关注并参与”。条件变化需重新查看确认。确认凭证也绑定账号，不能跨账号复用。被限制、已结束或不满足前置条件的活动可能无法执行。</p>
+<p>没有每日自动批量抽奖。参与成功不代表中奖，资格和奖品由小黑盒决定。</p>
+<h2 id="五、可选：由管理员管理多个账号"><a href="#五、可选：由管理员管理多个账号" class="headerlink" title="五、可选：由管理员管理多个账号"></a>五、可选：由管理员管理多个账号</h2><p>由管理员取得朋友授权后在本地登录，分别存储。最多 5 个槽位：</p>
 <table>
 <thead>
 <tr>
@@ -774,62 +769,83 @@
 <p>直接命令成功后会更新指定文件，先核对已有文件是否属于正确账号。</p>
 <p>打开新 JSON，完整复制到 GitHub 新 Secret <code>HEYBOX_CONFIG_2</code>。不要把它存到主账号的 <code>HEYBOX_CONFIG_JSON</code>。然后机器人 <code>/accounts</code> 选账号 2，<code>/status</code> 核对盒友 ID。账号 3～5 同理替换数字。</p>
 <p>保存后自动加入下一次定时执行，无需部署 Worker。不要把同一账号重复配置到多个槽位。当前菜单总显示 5 个槽位，未配置的槽位操作时提示缺配置，不会回退使用主账号；尚无自动显示所有账号昵称的功能。</p>
-<h2 id="操作菜单与抽奖"><a href="#操作菜单与抽奖" class="headerlink" title="操作菜单与抽奖"></a>操作菜单与抽奖</h2><table>
+<h2 id="六、附件、排错与维护"><a href="#六、附件、排错与维护" class="headerlink" title="六、附件、排错与维护"></a>六、附件、排错与维护</h2><details>
+<summary><strong>配套扩展下载与文件路径</strong></summary>
+
+<p>先从原作者仓库获得源码：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs powershell">git clone https://github.com/Cansiny0320/heybox<span class="hljs-literal">-daily</span>.git<br><span class="hljs-built_in">cd</span> heybox<span class="hljs-literal">-daily</span><br></code></pre></td></tr></table></figure>
+
+<p>把下面文件下载后，去掉文件名末尾的 <code>.txt</code>，按右侧目标路径放入本地仓库。GitHub 网页上传时要确保隐藏目录名称仍为 <code>.github</code>。建议先创建独立分支保存原版，再审阅差异；已有登录配置不要覆盖。</p>
+<table>
 <thead>
 <tr>
-<th>命令</th>
-<th>行为</th>
+<th>附件</th>
+<th>放入项目的路径</th>
 </tr>
 </thead>
 <tbody><tr>
-<td><code>/start</code></td>
-<td>打开当前账号操作菜单</td>
+<td><a href="/downloads/heybox-guide/1-cli.ts.txt">src&#x2F;cli.ts</a></td>
+<td><code>src/cli.ts</code></td>
 </tr>
 <tr>
-<td><code>/accounts</code></td>
-<td>切换当前管理账号</td>
+<td><a href="/downloads/heybox-guide/2-heybox-daily.yml.txt">.github&#x2F;workflows&#x2F;heybox-daily.yml</a></td>
+<td><code>.github/workflows/heybox-daily.yml</code></td>
 </tr>
 <tr>
-<td><code>/status</code></td>
-<td>查询签到、分享、经验、H 币和盒友 ID</td>
+<td><a href="/downloads/heybox-guide/3-telegram-command.yml.txt">.github&#x2F;workflows&#x2F;telegram-command.yml</a></td>
+<td><code>.github/workflows/telegram-command.yml</code></td>
 </tr>
 <tr>
-<td><code>/sign</code></td>
-<td>检查并补签</td>
+<td><a href="/downloads/heybox-guide/4-deploy-telegram-bot.yml.txt">.github&#x2F;workflows&#x2F;deploy-telegram-bot.yml</a></td>
+<td><code>.github/workflows/deploy-telegram-bot.yml</code></td>
 </tr>
 <tr>
-<td><code>/run</code></td>
-<td>执行每日任务</td>
+<td><a href="/downloads/heybox-guide/5-telegram-report.mjs.txt">scripts&#x2F;telegram-report.mjs</a></td>
+<td><code>scripts/telegram-report.mjs</code></td>
 </tr>
 <tr>
-<td><code>/activities</code></td>
-<td>获取抽奖活动列表</td>
+<td><a href="/downloads/heybox-guide/6-login-account.ps1.txt">scripts&#x2F;login-account.ps1</a></td>
+<td><code>scripts/login-account.ps1</code></td>
+</tr>
+<tr>
+<td><a href="/downloads/heybox-guide/7-worker.js.txt">telegram-worker&#x2F;src&#x2F;worker.js</a></td>
+<td><code>telegram-worker/src/worker.js</code></td>
+</tr>
+<tr>
+<td><a href="/downloads/heybox-guide/8-wrangler.jsonc.txt">telegram-worker&#x2F;wrangler.jsonc</a></td>
+<td><code>telegram-worker/wrangler.jsonc</code></td>
+</tr>
+<tr>
+<td><a href="/downloads/heybox-guide/LICENSE.txt">原项目 MIT 许可证副本</a></td>
+<td>保留项目原有 LICENSE，附件仅供阅读</td>
 </tr>
 </tbody></table>
-<p>普通命令使用当前账号；旧消息的操作按钮绑定消息生成时的账号，切换后仍操作原账号。建议切换后重新 <code>/start</code> 使用新菜单。</p>
-<p>抽奖依次点击“抽奖活动 → 某活动详情 → 确认参与”。需要关注时详情会显示要求，确认按钮为“确认关注并参与”。条件变化需重新查看确认。确认凭证也绑定账号，不能跨账号复用。被限制、已结束或不满足前置条件的活动可能无法执行。</p>
-<p>没有每日自动批量抽奖。参与成功不代表中奖，资格和奖品由小黑盒决定。</p>
-<h2 id="定时签到与断签处理"><a href="#定时签到与断签处理" class="headerlink" title="定时签到与断签处理"></a>定时签到与断签处理</h2><p>工作流 <code>.github/workflows/heybox-daily.yml</code> 使用 UTC cron：</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">schedule:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">cron:</span> <span class="hljs-string">&#x27;15 1 * * *&#x27;</span>  <span class="hljs-comment"># 北京时间 09:15</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">cron:</span> <span class="hljs-string">&#x27;15 12 * * *&#x27;</span> <span class="hljs-comment"># 北京时间 20:15</span><br></code></pre></td></tr></table></figure>
+<p><code>src/cli.ts</code> 包含本文需要的 <code>sign-only</code>、状态 JSON 与活动操作入口，不能只复制工作流而漏掉它。这是基于本文验证时的源码适配，不保证未来版本可以无冲突覆盖；如原仓库接口变化，请对照差异合并。原项目 NOTICE 与第三方许可继续保留。</p>
+<p>附件中的 <code>telegram-worker/wrangler.jsonc</code> 已清除原部署信息，<code>YOUR_GITHUB_OWNER</code>、<code>YOUR_REPOSITORY</code>、<code>YOUR_KV_NAMESPACE_ID</code> 都需要填写；Worker 名称可按文章示例保留。</p>
+<p>接下来创建自己的 GitHub 仓库并推送这份带扩展的源码，按正文配置 Secrets。以下“Telegram Command”等名称指附件提供的工作流，不是承诺原仓库默认已有。</p>
+</details>
 
-<p>代码通过 <code>15 12 * * *</code> 这个字符串识别晚间任务。修改晚间 cron 时必须同步修改 <code>TASK_COMMAND</code> 对应判断，否则可能执行完整每日任务。</p>
-<p>5 个槽位当前按矩阵顺序、最多 1 个并行执行。空槽位跳过主要步骤，后面的账号可能更晚通知。晚间已签到时静默，补签成功或检查失败才通知；手动 <code>/sign</code> 会报告操作结果。</p>
-<p>通知里“部署实践中 H 币变化”是此次任务前后差值，不是当天全部来源的累计收入。查询余额不能代表所有奖励已经到账。</p>
-<p>GitHub 调度可能延迟，高负载时甚至丢弃任务，计划 09:15 不保证准点到达。晚间兜底提高恢复机会，仍不能保证不断签。<a target="_blank" rel="noopener" href="https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule">官方调度说明</a>。公开库 60 天没有活动可能自动停用定时工作流，需检查启用状态。<a target="_blank" rel="noopener" href="https://docs.github.com/en/actions/how-tos/manage-workflow-runs/disable-and-enable-workflows">官方停用说明</a>。</p>
-<p>担心断签时先 <code>/status</code>，未签再 <code>/sign</code>。也可 Actions → Heybox Daily → Run workflow 勾选只检查和补签；这个工作流处理全部已配置账号，机器人指令处理单账号。</p>
-<h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><h3 id="Cloudflare-Invalid-access-token-Authentication-error"><a href="#Cloudflare-Invalid-access-token-Authentication-error" class="headerlink" title="Cloudflare Invalid access token &#x2F; Authentication error"></a>Cloudflare Invalid access token &#x2F; Authentication error</h3><p>部署实践中遇到 Worker 部署约十几秒失败，日志有 <code>Invalid access token [code: 9109]</code> 和认证错误。替换有效部署令牌后成功，无需重建 KV 或 Worker。</p>
+<details>
+<summary><strong>遇到错误时：按现象查找解决方法</strong></summary>
+
+<h3 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h3><h4 id="Cloudflare-Invalid-access-token-Authentication-error"><a href="#Cloudflare-Invalid-access-token-Authentication-error" class="headerlink" title="Cloudflare Invalid access token &#x2F; Authentication error"></a>Cloudflare Invalid access token &#x2F; Authentication error</h4><p>部署实践中遇到 Worker 部署约十几秒失败，日志有 <code>Invalid access token [code: 9109]</code> 和认证错误。替换有效部署令牌后成功，无需重建 KV 或 Worker。</p>
 <p>依次核对 Secret 名称、Token 是否复制完整、过期或撤销、账户 ID、令牌类型与权限。不能仅凭错误 10000 断言具体原因。必要时重新使用 Edit Cloudflare Workers 模板创建令牌，替换 GitHub Secret，然后手动重新部署。</p>
-<h3 id="机器人提交失败-GitHub-401、403、404"><a href="#机器人提交失败-GitHub-401、403、404" class="headerlink" title="机器人提交失败 &#x2F; GitHub 401、403、404"></a>机器人提交失败 &#x2F; GitHub 401、403、404</h3><p>检查 BOT_GITHUB_TOKEN 是否过期、Resource owner 是否正确、是否选择目标仓库、Actions 是否读写，以及 Worker owner&#x2F;repo&#x2F;分支。私有库未授权也可能 404。更新 PAT 后需要部署同步 Worker Secret。</p>
-<h3 id="KV-空白、绑定位置找不到、ID-分不清"><a href="#KV-空白、绑定位置找不到、ID-分不清" class="headerlink" title="KV 空白、绑定位置找不到、ID 分不清"></a>KV 空白、绑定位置找不到、ID 分不清</h3><p>新 KV 空白正常。先创建空间，再在 Worker 设置添加 BOT_STATE 绑定；只有示例介绍时点右下角添加绑定继续。账户 ID、KV ID、Worker URL 按上方表格分别填写，并同步 Wrangler 文件。</p>
-<h3 id="start-无回复"><a href="#start-无回复" class="headerlink" title="&#x2F;start 无回复"></a>&#x2F;start 无回复</h3><p>确认私聊的是自己的机器人，TG_CHAT_ID 正确，Worker 部署四个步骤成功。非管理员消息会被忽略。BotFather 创建成功不代表回复程序已经上线。</p>
-<h3 id="同一个机器人给其他项目发通知"><a href="#同一个机器人给其他项目发通知" class="headerlink" title="同一个机器人给其他项目发通知"></a>同一个机器人给其他项目发通知</h3><p>每个仓库独立配置 Secrets，并在对应工作流接入通知。同一个 Bot 可以接收多个项目的结果，但不会自动订阅所有仓库。变量名以各项目的实现为准，连接测试消息也不能证明定时任务已经执行。</p>
-<h3 id="定时-4-点没有运行、通知却很晚"><a href="#定时-4-点没有运行、通知却很晚" class="headerlink" title="定时 4 点没有运行、通知却很晚"></a>定时 4 点没有运行、通知却很晚</h3><p>先检查 UTC 时差：北京时间 04:00 是前一天 UTC 20:00，对应 <code>0 20 * * *</code>。再看默认分支、工作流启用、Actions 队列与额度。</p>
+<h4 id="机器人提交失败-GitHub-401、403、404"><a href="#机器人提交失败-GitHub-401、403、404" class="headerlink" title="机器人提交失败 &#x2F; GitHub 401、403、404"></a>机器人提交失败 &#x2F; GitHub 401、403、404</h4><p>检查 BOT_GITHUB_TOKEN 是否过期、Resource owner 是否正确、是否选择目标仓库、Actions 是否读写，以及 Worker owner&#x2F;repo&#x2F;分支。私有库未授权也可能 404。更新 PAT 后需要部署同步 Worker Secret。</p>
+<h4 id="KV-空白、绑定位置找不到、ID-分不清"><a href="#KV-空白、绑定位置找不到、ID-分不清" class="headerlink" title="KV 空白、绑定位置找不到、ID 分不清"></a>KV 空白、绑定位置找不到、ID 分不清</h4><p>新 KV 空白正常。先创建空间，再在 Worker 设置添加 BOT_STATE 绑定；只有示例介绍时点右下角添加绑定继续。账户 ID、KV ID、Worker URL 按上方表格分别填写，并同步 Wrangler 文件。</p>
+<h4 id="start-无回复"><a href="#start-无回复" class="headerlink" title="&#x2F;start 无回复"></a>&#x2F;start 无回复</h4><p>确认私聊的是自己的机器人，TG_CHAT_ID 正确，Worker 部署四个步骤成功。非管理员消息会被忽略。BotFather 创建成功不代表回复程序已经上线。</p>
+<h4 id="同一个机器人给其他项目发通知"><a href="#同一个机器人给其他项目发通知" class="headerlink" title="同一个机器人给其他项目发通知"></a>同一个机器人给其他项目发通知</h4><p>每个仓库独立配置 Secrets，并在对应工作流接入通知。同一个 Bot 可以接收多个项目的结果，但不会自动订阅所有仓库。变量名以各项目的实现为准，连接测试消息也不能证明定时任务已经执行。</p>
+<h4 id="定时-4-点没有运行、通知却很晚"><a href="#定时-4-点没有运行、通知却很晚" class="headerlink" title="定时 4 点没有运行、通知却很晚"></a>定时 4 点没有运行、通知却很晚</h4><p>先检查 UTC 时差：北京时间 04:00 是前一天 UTC 20:00，对应 <code>0 20 * * *</code>。再看默认分支、工作流启用、Actions 队列与额度。</p>
 <p>从 Actions 创建时间、构建和执行日志区分调度延迟与任务耗时。Telegram 到达时间不能直接证明 cron 配错，多账号顺序也会延后消息。</p>
-<h3 id="缺配置、登录失效、人机验证"><a href="#缺配置、登录失效、人机验证" class="headerlink" title="缺配置、登录失效、人机验证"></a>缺配置、登录失效、人机验证</h3><p>核对槽位 Secret 名称和完整 JSON。登录失效需要本地重新登录并更新同槽位 Secret；不要覆盖其他账号。短信限制不要反复重发；设备令牌 SDK 变更或验证码要求可能需要进一步维护，不能通过乱改版本号解决。</p>
-<h3 id="CI-红叉、每次收到失败邮件"><a href="#CI-红叉、每次收到失败邮件" class="headerlink" title="CI 红叉、每次收到失败邮件"></a>CI 红叉、每次收到失败邮件</h3><p>先区分 CI、Deploy Telegram Bot、Heybox Daily、Telegram Command。CI 测试失败不等于签到失败；部署成功也不等于完整测试全绿。</p>
+<h4 id="缺配置、登录失效、人机验证"><a href="#缺配置、登录失效、人机验证" class="headerlink" title="缺配置、登录失效、人机验证"></a>缺配置、登录失效、人机验证</h4><p>核对槽位 Secret 名称和完整 JSON。登录失效需要本地重新登录并更新同槽位 Secret；不要覆盖其他账号。短信限制不要反复重发；设备令牌 SDK 变更或验证码要求可能需要进一步维护，不能通过乱改版本号解决。</p>
+<h4 id="CI-红叉、每次收到失败邮件"><a href="#CI-红叉、每次收到失败邮件" class="headerlink" title="CI 红叉、每次收到失败邮件"></a>CI 红叉、每次收到失败邮件</h4><p>先区分 CI、Deploy Telegram Bot、Heybox Daily、Telegram Command。CI 测试失败不等于签到失败；部署成功也不等于完整测试全绿。</p>
 <p>部署实践中修正过 Compose 项目名导致的 CI 问题，后来原网站集成测试又出现断言失败，仍需独立排查。减少邮件可在 GitHub 个人 Settings → Notifications → Actions 调整通知，或点击邮件底部管理链接。界面选项以当前账户为准；关通知不会修复失败，不建议为去红叉删除测试。</p>
-<h3 id="Node、pnpm、Docker-不存在或安装失败"><a href="#Node、pnpm、Docker-不存在或安装失败" class="headerlink" title="Node、pnpm、Docker 不存在或安装失败"></a>Node、pnpm、Docker 不存在或安装失败</h3><p>安装对应软件并重开终端，Docker 还需启动服务。pnpm 首次依赖下载可能很慢，可选平台包下载失败属于本机依赖问题，先处理网络与安装，不要误当成账号登录错误。</p>
-<h2 id="维护、暂停和更新"><a href="#维护、暂停和更新" class="headerlink" title="维护、暂停和更新"></a>维护、暂停和更新</h2><p>本地更新先检查修改再拉取：</p>
+<h4 id="Node、pnpm、Docker-不存在或安装失败"><a href="#Node、pnpm、Docker-不存在或安装失败" class="headerlink" title="Node、pnpm、Docker 不存在或安装失败"></a>Node、pnpm、Docker 不存在或安装失败</h4><p>安装对应软件并重开终端，Docker 还需启动服务。pnpm 首次依赖下载可能很慢，可选平台包下载失败属于本机依赖问题，先处理网络与安装，不要误当成账号登录错误。</p>
+</details>
+
+<details>
+<summary><strong>更新代码、暂停任务与轮换密钥</strong></summary>
+
+<h3 id="维护、暂停和更新"><a href="#维护、暂停和更新" class="headerlink" title="维护、暂停和更新"></a>维护、暂停和更新</h3><p>本地更新先检查修改再拉取：</p>
 <figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs powershell">git status<br>git pull <span class="hljs-literal">--ff-only</span><br>pnpm install <span class="hljs-literal">--frozen-lockfile</span> <span class="hljs-literal">--ignore-scripts</span><br>pnpm build<br></code></pre></td></tr></table></figure>
 
 <p>保留已有修改，不用强制覆盖。合并原项目更新时保留本文扩展方案工作流、Telegram 改造与自己的 Wrangler 配置，不使用原作者生产资源 ID。</p>
@@ -874,10 +890,12 @@
 </tr>
 </tbody></table>
 <p>Secret 删除不会撤回已读取凭证的在途任务。菜单仍显示空槽位。同一个 Bot 不要被多套 webhook 服务竞争使用，轮换 webhook 密钥后旧活动确认可能失效，重新查看活动即可。</p>
-<h2 id="改造记录和验证边界"><a href="#改造记录和验证边界" class="headerlink" title="改造记录和验证边界"></a>改造记录和验证边界</h2><p>部署实践中依次完成：复制项目到独立库、本地短信登录、Actions 定时任务、晚间漏签兜底、保留原作者署名、Telegram 通知、任务和盒币明细、去掉通知链接、Cloudflare Worker&#x2F;KV 部署、快捷命令菜单、抽奖确认、5 账号独立槽位、本地登录脚本、旧按钮固定账号及确认凭证绑定账号。</p>
-<p>已验证 Worker 部署、webhook&#x2F;命令注册、账号 1 线上只读状态查询，以及模拟账号隔离测试。朋友账号需实际完成登录、保存 Secret 后逐一核对；预留槽位不等于已经登录。完整 CI 的原网站集成检查曾失败，本教程不宣称全部测试通过。</p>
-<p>原项目网站、Executor、Runner 是其他部署架构，不等同本文免费机器人方案。登录原作者在线服务不会自动把凭证存到自己的 GitHub。当前没有云端网页登录、多 Telegram 用户隔离、账号昵称自动列表或保证不断签的能力。</p>
-<p>进一步参考：<a target="_blank" rel="noopener" href="https://github.com/Cansiny0320/heybox-daily/blob/main/docs/usage.md">原项目使用说明</a>、<a target="_blank" rel="noopener" href="https://core.telegram.org/bots/api">Telegram 官方 Bot API</a>。平台界面和额度请以当时官方说明为准。</p>
+</details>
+
+<h3 id="使用边界"><a href="#使用边界" class="headerlink" title="使用边界"></a>使用边界</h3><p>本文方案由一个 Telegram 管理员统一管理，首次登录仍在本地完成。原作者网站的托管账号与自己的 GitHub 配置是不同系统，登录原作者网站不会自动为自己的仓库保存凭证。</p>
+<p>已验证的范围包括 Worker 部署、命令注册、主账号的线上只读查询，以及按钮账号隔离的模拟测试。其他账号需要各自登录并核对盒友 ID。原网站集成测试曾出现独立失败，不能将机器人部署成功视为整个项目所有测试通过。</p>
+<p>没有自动批量参加全部抽奖，也不能保证永久不断签。参与、关注及奖励以小黑盒实际状态为准。</p>
+<p>源码与后续更新请查看 <a target="_blank" rel="noopener" href="https://github.com/Cansiny0320/heybox-daily">原作者仓库</a>，本地运行细节可参考 <a target="_blank" rel="noopener" href="https://github.com/Cansiny0320/heybox-daily/blob/main/docs/usage.md">原项目使用说明</a>。代码遵循原仓库 MIT License，第三方资源以原项目 NOTICE 为准。</p>
 
                 
               </div>
@@ -913,13 +931,11 @@
       
         <a href="/tags/GitHub-Actions/" class="print-no-link">#GitHub Actions</a>
       
-        <a href="/tags/Cloudflare/" class="print-no-link">#Cloudflare</a>
+        <a href="/tags/%E5%B0%8F%E9%BB%91%E7%9B%92/" class="print-no-link">#小黑盒</a>
       
         <a href="/tags/Telegram/" class="print-no-link">#Telegram</a>
       
-        <a href="/tags/Docker/" class="print-no-link">#Docker</a>
-      
-        <a href="/tags/%E8%87%AA%E5%8A%A8%E5%8C%96/" class="print-no-link">#自动化</a>
+        <a href="/tags/Cloudflare/" class="print-no-link">#Cloudflare</a>
       
     </div>
   
@@ -931,7 +947,7 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>不买服务器，给小黑盒签到接上 GitHub Actions 与 Telegram 机器人</div>
+      <div>小黑盒每日签到</div>
       <div>https://128374.xyz/2026/11/23/heybox-github-actions-telegram-cloudflare/</div>
     </div>
     <div class="license-meta">
